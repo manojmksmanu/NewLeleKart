@@ -1,8 +1,10 @@
-import React from "react";
-import { View } from "react-native";
+import { ThemeProvider } from "../context/ThemeContext"; // Adjust import path
+import { Redirect } from "expo-router";
 
-const index = () => {
-  return <View>index hello</View>;
-};
-
-export default index;
+export default function Index() {
+  return (
+    <ThemeProvider>
+      <Redirect href="/(tab)" />
+    </ThemeProvider>
+  );
+}

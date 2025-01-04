@@ -1,26 +1,22 @@
-/**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
- */
-
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
-
 export const Colors = {
   light: {
-    text: '#11181C',
-    background: '#fff',
-    tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
-    tabIconSelected: tintColorLight,
+    text: "#222222", //done
+    lightText: "#9B9B9B", // done grey for light text
+    background: "#F9F9F9", //done
+    primary: "#DB3022", //done like buttons and icons acitve active text
+    secondaryBackground: "#FFFFFF", //like input background and card bg
+    secondary: "#222222", //done text color like color
+    success: "#2AA952", //done show success toast and messages
+    sale: "#DB3022", // no use right now
   },
   dark: {
-    text: '#ECEDEE',
-    background: '#151718',
-    tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: tintColorDark,
+    text: "#FFFFFF", // done
+    lightText: "#ABB4BD", // done
+    background: "#1E1F28", //done
+    primary: "#EF3651", //done
+    secondaryBackground: "#2A2C36", //done
+    secondary: "#FFFFFF", //done
+    success: "#2AA952", //done
+    sale: "#DB3022", //done
   },
 };
