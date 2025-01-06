@@ -31,14 +31,12 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({
   ) => {
     setToasts((prevToasts) => [...prevToasts, { message, type, duration }]);
   };
-
   const handleCloseToast = () => {
     setToasts((prevToasts) => prevToasts.slice(1)); // Remove the first toast
   };
 
   return (
     <ToastContext.Provider value={{ showToast }}>
-      {/* Render all active toasts */}
       {toasts.map((toast, index) => (
         <CustomToast
           key={index}

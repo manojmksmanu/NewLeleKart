@@ -1,7 +1,7 @@
 import { Tabs } from "expo-router";
-import { useColorScheme, StyleSheet, ImageSourcePropType } from "react-native";
-import CustomTabIcon from "@/components/molecules/CustomTabsIcon";
 import { useTheme } from "@/context/ThemeContext";
+import CustomTabIcon from "@/components/molecules/CustomTabsIcon";
+import { View, StyleSheet, ImageSourcePropType } from "react-native";
 
 type TabIconSet = {
   active: ImageSourcePropType;
@@ -23,6 +23,7 @@ type TabScreen = {
 
 export default function TabLayout() {
   const theme = useTheme();
+
   const icons: { light: IconMode; dark: IconMode } = {
     light: {
       home: {
@@ -87,27 +88,34 @@ export default function TabLayout() {
     name === "index" ? "home" : name;
 
   return (
-    <Tabs screenOptions={{ headerShown: false }}>
-      {tabScreens.map(({ name, title }) => (
-        <Tabs.Screen
-          key={name}
-          name={name}
-          options={{
-            title,
-            tabBarIcon: ({ focused }) => (
-              <CustomTabIcon
-                focused={focused}
-                lightModeIcon={icons.light[getIconKey(name)]}
-                darkModeIcon={icons.dark[getIconKey(name)]}
-                name={title}
-              />
-            ),
-            tabBarLabel: () => null,
-            tabBarStyle,
-          }}
-        />
-      ))}
-    </Tabs>
+    <View style={{ flex: 1, backgroundColor: theme.background }}>
+      <Tabs
+        screenOptions={{
+          headerShown: false,
+          tabBarStyle,
+        }}
+      >
+        {tabScreens.map(({ name, title }) => (
+          <Tabs.Screen
+            key={name}
+            name={name}
+            options={{
+              title,
+              tabBarIcon: ({ focused }) => (
+                <CustomTabIcon
+                  focused={focused}
+                  lightModeIcon={icons.light[getIconKey(name)]}
+                  darkModeIcon={icons.dark[getIconKey(name)]}
+                  name={title}
+                />
+              ),
+              tabBarLabel: () => null,
+              tabBarStyle,
+            }}
+          />
+        ))}
+      </Tabs>
+    </View>
   );
 }
 
@@ -123,6 +131,5 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 5,
     height: 80,
-    
   },
 });

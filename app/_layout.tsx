@@ -1,7 +1,6 @@
 import { ThemeProvider } from "@/context/ThemeContext"; // Adjust import
 import { ToastProvider } from "@/context/ToastContainer";
-import ThemedStack from "@/components/templates/themedLayouts/ThemedStack"; // Import the new component
-import { StatusBar } from "react-native";
+import ThemedStack from "@/components/templates/themedLayouts/ThemedStack"; 
 import ThemedStatusBar from "@/components/templates/themedLayouts/ThemedStatusBar";
 
 export default function Layout() {
@@ -9,7 +8,7 @@ export default function Layout() {
     <ThemeProvider>
       <ToastProvider>
         <ThemedStatusBar/>
-        <ThemedStack /> {/* Use the ThemedStack component here */}
+        <ThemedStack /> 
       </ToastProvider>
     </ThemeProvider>
   );

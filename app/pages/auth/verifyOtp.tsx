@@ -62,7 +62,7 @@ const VerifyOtp = ({  }) => {
         <View style={{ display: "flex", flexDirection: "column", gap: 50 }}>
           {/* <CustomLoading size={250} /> */}
           <Text style={{ textAlign: "center", paddingTop: -40 }}>
-            Checking verificatin code, Please Wait...{" "}
+            Checking verificatin code, Please Wait...
           </Text>
         </View>
       )}
