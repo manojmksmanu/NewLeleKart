@@ -7,6 +7,7 @@ export default function Layout() {
       <Stack>
         <Stack.Screen name="(tab)" options={{ headerShown: false }} />
         <Stack.Screen name="cart" />
+        <Stack.Screen name="pages/about" options={{ title: "About" }} />
       </Stack>
     </ThemeProvider>
   );

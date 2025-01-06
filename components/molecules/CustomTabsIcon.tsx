@@ -1,6 +1,6 @@
 // app/components/CustomTabIcon.tsx
 import React from "react";
-import { Image, StyleSheet, Text, useColorScheme } from "react-native";
+import { Image, StyleSheet, Text, useColorScheme, View } from "react-native";
 import { useTheme } from "../../context/ThemeContext"; // Adjust path accordingly
 
 type CustomTabIconProps = {
@@ -29,12 +29,12 @@ const CustomTabIcon: React.FC<CustomTabIconProps> = ({
       : lightModeIcon.inactive;
 
   return (
-    <>
+    <View style={{width:50, display:'flex',alignItems:'center'}}>
       <Image source={icon} style={styles.icon} />
-      <Text style={[styles.tabLabel, focused && { color: theme.primary }]}>
+      <Text style={[styles.tabLabel,{color:theme.lightText}, focused && { color: theme.primary }]}>
         {name}
       </Text>
-    </>
+    </View>
   );
 };
 
@@ -45,7 +45,8 @@ const styles = StyleSheet.create({
   },
   tabLabel: {
     fontSize: 10,
-    color: "#687076", // Default color for labels
+    fontWeight:700,
+    textAlign:'center'
   },
   focusedText: {
     color: "#0a7ea4", // Active tab color

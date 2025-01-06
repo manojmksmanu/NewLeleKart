@@ -10,6 +10,7 @@ type Theme = {
   lightText: string;
   background: string;
   primary: string;
+  buttonText: string;
   secondaryBackground: string;
   secondary: string;
   success: string;
