@@ -1,25 +1,15 @@
 import { DescriptionText, Headline3 } from "@/components/atoms/Text";
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-  Animated,
-} from "react-native";
+import { View, ScrollView, StyleSheet, Image } from "react-native";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useTheme } from "@/context/ThemeContext";
 import { Link } from "expo-router";
-import {
-  ButtonPrimaryBig,
-  ButtonPrimaryBigLink,
-} from "@/components/atoms/Button";
-import { Image } from "react-native";
+import { ButtonPrimaryBigLink } from "@/components/atoms/Button";
 
 export default function ProfileTab() {
   const theme = useTheme();
+
   return (
-    <ScrollView style={{ flex: 1 }}>
+    <ScrollView style={{ flex: 1, backgroundColor: theme.background }}>
       {/* User Info Container */}
       <View
         style={{
@@ -28,6 +18,7 @@ export default function ProfileTab() {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
+          marginTop: 50,
         }}
       >
         <View
@@ -63,8 +54,7 @@ export default function ProfileTab() {
         </View>
       </View>
 
-      {/* Public Access Page Link */}
-
+      {/* Public Access Page Links */}
       <Link href="/pages/static/about">
         <View
           style={[
@@ -78,7 +68,7 @@ export default function ProfileTab() {
           <AntDesign name="right" size={18} color={theme.text} />
         </View>
       </Link>
-      <Link href="/pages/about">
+      <Link href="/pages/static/paymentInfo">
         <View
           style={[
             styles.linkContainer,
@@ -87,11 +77,11 @@ export default function ProfileTab() {
             },
           ]}
         >
-          <Headline3 text="About us" />
+          <Headline3 text="Payment Information" />
           <AntDesign name="right" size={18} color={theme.text} />
         </View>
       </Link>
-      <Link href="/pages/about">
+      <Link href="/pages/static/privacyPolicy">
         <View
           style={[
             styles.linkContainer,
@@ -100,11 +90,11 @@ export default function ProfileTab() {
             },
           ]}
         >
-          <Headline3 text="About us" />
+          <Headline3 text="Privacy Policy" />
           <AntDesign name="right" size={18} color={theme.text} />
         </View>
       </Link>
-      <Link href="/pages/about">
+      <Link href="/pages/static/refundAndCancellationPolicy">
         <View
           style={[
             styles.linkContainer,
@@ -113,11 +103,11 @@ export default function ProfileTab() {
             },
           ]}
         >
-          <Headline3 text="About us" />
+          <Headline3 text="Refund and cancellation" />
           <AntDesign name="right" size={18} color={theme.text} />
         </View>
       </Link>
-      <Link href="/pages/about">
+      <Link href="/pages/static/safeAndSecure">
         <View
           style={[
             styles.linkContainer,
@@ -126,11 +116,25 @@ export default function ProfileTab() {
             },
           ]}
         >
-          <Headline3 text="About us" />
+          <Headline3 text="Safe and secure" />
+          <AntDesign name="right" size={18} color={theme.text} />
+        </View>
+      </Link>
+      <Link href="/pages/static/shippingAndReturnPolicy">
+        <View
+          style={[
+            styles.linkContainer,
+            {
+              borderColor: theme.lightText,
+            },
+          ]}
+        >
+          <Headline3 text="Shipping and returns" />
           <AntDesign name="right" size={18} color={theme.text} />
         </View>
       </Link>
 
+      {/* Version Info */}
       <View
         style={{
           display: "flex",

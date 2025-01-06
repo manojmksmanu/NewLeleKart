@@ -27,7 +27,7 @@ export function Headline3({ text }: HeadlineProps) {
   const theme = useTheme();
   return (
     // <View style={{}}>
-      <Text style={{ fontSize: 20, fontWeight: 500, color: theme.text }}>
+      <Text style={{ fontSize: 18, fontWeight: 500, color: theme.text }}>
         {text}
       </Text>
     // </View>

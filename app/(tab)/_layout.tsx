@@ -123,5 +123,6 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 5,
     height: 80,
+    
   },
 });
