@@ -14,7 +14,7 @@ export default function BagTab() {
       <TouchableOpacity onPress={showSomeToast}>
         <Text> press me</Text>
       </TouchableOpacity>
-      <Link href={"/pages/about"}>Go to cart</Link>
+      <Link href={"/pages/static/about"}>Go to cart</Link>
     </View>
   );
 }

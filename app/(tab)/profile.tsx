@@ -5,22 +5,67 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
+  Animated,
 } from "react-native";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useTheme } from "@/context/ThemeContext";
 import { Link } from "expo-router";
+import {
+  ButtonPrimaryBig,
+  ButtonPrimaryBigLink,
+} from "@/components/atoms/Button";
+import { Image } from "react-native";
 
 export default function ProfileTab() {
   const theme = useTheme();
-
   return (
     <ScrollView style={{ flex: 1 }}>
       {/* User Info Container */}
-      <View style={{ height: 300, backgroundColor: "blue", width: "100%" }} />
+      <View
+        style={{
+          height: 200,
+          width: "100%",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <View
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 20,
+          }}
+        >
+          <Image
+            style={{
+              width: 100,
+              height: 100,
+              backgroundColor: theme.secondary,
+              borderRadius: 100,
+            }}
+            source={require("../../assets/images/boy.png")}
+          />
+          <Link href="/pages/auth/login">
+            <View
+              style={{
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                paddingHorizontal: 40,
+              }}
+            >
+              <ButtonPrimaryBigLink text="Login/SignUp" />
+            </View>
+          </Link>
+        </View>
+      </View>
 
       {/* Public Access Page Link */}
 
-      <Link href="/pages/about">
+      <Link href="/pages/static/about">
         <View
           style={[
             styles.linkContainer,

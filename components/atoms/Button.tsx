@@ -4,7 +4,7 @@ import React from "react";
 
 type ButtonPrimaryBigProps = {
   text: string;
-  onPress: () => void;
+  onPress: any;
 };
 
 export function ButtonPrimaryBig({ text, onPress }: ButtonPrimaryBigProps) {
@@ -19,6 +19,21 @@ export function ButtonPrimaryBig({ text, onPress }: ButtonPrimaryBigProps) {
         {text.toUpperCase()}
       </Text>
     </TouchableOpacity>
+  );
+}
+export function ButtonPrimaryBigLink({ text }: any) {
+  const theme = useTheme();
+  return (
+    <View
+      style={[
+        styles.button,
+        { backgroundColor: theme.primary, width: "100%", },
+      ]}
+    >
+      <Text style={[styles.buttonText, { color: theme.buttonText }]}>
+        {text.toUpperCase()}
+      </Text>
+    </View>
   );
 }
 const styles = StyleSheet.create({
@@ -36,7 +51,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 });
-
 
 export function ButtonOutlinBig({ text, onPress }: ButtonPrimaryBigProps) {
   const theme = useTheme();
@@ -68,7 +82,6 @@ const styles1 = StyleSheet.create({
   },
 });
 
-
 export function ButtonPrimarySmall({ text, onPress }: ButtonPrimaryBigProps) {
   const theme = useTheme();
 
@@ -97,7 +110,6 @@ const styles2 = StyleSheet.create({
     fontWeight: "600",
   },
 });
-
 
 export function ButtonOutlineSmall({ text, onPress }: ButtonPrimaryBigProps) {
   const theme = useTheme();
