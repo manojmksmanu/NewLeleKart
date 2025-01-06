@@ -30,7 +30,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
   useEffect(() => {
     Animated.timing(animatedValue, {
       toValue: isFocused || value ? 1 : 0,
-      duration: 200,
+      duration: 100,
       useNativeDriver: false,
     }).start();
   }, [isFocused, value]);
