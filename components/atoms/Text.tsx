@@ -49,6 +49,14 @@ export function NormalText({ text }: HeadlineProps) {
       </Text>
   );
 }
+export function NormalText2({ text }: HeadlineProps) {
+  const theme = useTheme();
+  return (
+      <Text style={{ fontSize: 14, fontWeight: "regular", color: theme.text }}>
+        {text}
+      </Text>
+  );
+}
 
 export function DescriptiveItems({ text }: HeadlineProps) {
   const theme = useTheme();

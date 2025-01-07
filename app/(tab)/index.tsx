@@ -7,66 +7,67 @@ import {
 import FullScreenLoading from "@/components/atoms/FullScreenLoading";
 import SkeletonLoading from "@/components/atoms/SkeletonLoading";
 import { Headline, HelperText } from "@/components/atoms/Text";
+import ProductCard from "@/components/organisms/productCard";
 import ProductPage from "@/components/templates/ProductPage";
 import { useLoading } from "@/context/FullScreenLoaderContext";
+import { useTheme } from "@/context/ThemeContext";
 import axios from "axios";
 import { useEffect } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 
 export default function HomeTab() {
   const setLoading = useLoading();
+  const theme = useTheme();
 
-  const setsome =()=>{
+  const setsome = () => {
     setLoading(true);
-     setTimeout(() => {
-       setLoading(false);
-     }, 2000);
-  }
+    setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+  };
 
-  // useEffect(() => {
-  //   setLoading(true);
-
-  //   setTimeout(() => {
-  //     setLoading(false);
-  //   }, 2000);
-  // }, []);
-  // // const fetchProducts = async () => {
-  //   console.log('hit this')
-  //   try {
-
-  //     const response = await axios.get(`http://localhost:9000/store/products`, {
-  //       headers: {
-  //         Accept: "application/json",
-  //         "Content-Type": "application/json",
-  //         "x-publishable-api-key":
-  //           "pk_538a0b9c964e74ff9e0ca79f8f72afab30a84a9f27e3e4a9da5fb7c6cafe112d",
-  //       },
-  //     });
-  //     console.log(response);
-  //   } catch (error) {
-
-  //     if (axios.isAxiosError(error)) {
-  //       console.error("Axios error:", error.message);
-  //     } else {
-  //       console.error("Unexpected error:", error);
-  //     }
-  //     return []; // Return empty array in case of error
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   fetchProducts();
-  // }, []);
   return (
-    <View style={{ justifyContent: "center", alignItems: "center" }}>
+    <ScrollView
+      style={{ backgroundColor: theme.background }}
+      contentContainerStyle={{ paddingBottom: 20 }} // Ensures smooth scrolling
+    >
       <ProductPage />
       <HelperText text={"hello"} />
       <SkeletonLoading />
-      {/* <FullScreenLoading/> */}
+
       <TouchableOpacity onPress={setsome}>
-      <Text>loading</Text>
+        <Text
+          style={{ padding: 10, textAlign: "center", color: theme.text }}
+        >
+          Loading
+        </Text>
       </TouchableOpacity>
-      <Text>Welcome to the Home Tab!</Text>
-    </View>
+
+      <Text style={{ padding: 10, fontSize: 18, textAlign: "center" }}>
+        Welcome to the Home Tab!
+      </Text>
+
+      <View
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          flexWrap: "wrap",
+          justifyContent: "space-between",
+        }}
+      >
+        <View style={{ width: "50%", padding: 5 }}>
+          <ProductCard />
+        </View>
+        <View style={{ width: "50%", padding: 5 }}>
+          <ProductCard />
+        </View>
+        <View style={{ width: "50%", padding: 5 }}>
+          <ProductCard />
+        </View>
+        <View style={{ width: "50%", padding: 5 }}>
+          <ProductCard />
+        </View>
+      </View>
+    </ScrollView>
   );
 }
