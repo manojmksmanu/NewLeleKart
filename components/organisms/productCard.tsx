@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import FastImage from "react-native-fast-image";
 import { HelperText, NormalText, NormalText2, Subheads } from "../atoms/Text";
+import StarRating from "../molecules/StarRating";
 const ProductCard = () => {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [heartScale] = useState(new Animated.Value(0));
@@ -23,7 +24,7 @@ const ProductCard = () => {
     name: "Product 1",
     price: 10.99,
     image:
-      "https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=2008&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     brand: "top",
     size: "x,l,ml,s",
   };
@@ -86,7 +87,7 @@ const ProductCard = () => {
           <AntDesign
             name={isWishlisted ? "heart" : "hearto"}
             size={16}
-            color={isWishlisted ? theme.primary : theme.text}
+            color={isWishlisted ? theme.primary : theme.lightText}
           />
           {/* <Icon
             name={isWishlisted ? "heart" : "heart-outline"}
@@ -101,6 +102,7 @@ const ProductCard = () => {
         resizeMode="cover"
       />
       <View style={styles.productInfo}>
+        <StarRating rating={4.5}/>
         <HelperText text={item?.brand} />
         <Subheads text={item?.name} />
         <View style={styles.priceContainer}>
