@@ -17,17 +17,15 @@ const axiosInstance = axios.create({
 // Fetch list of products
 export const fetchProducts = async () => {
   try {
-    const response = await axios.get(
-      `https://admin.lelehaat.com/store/products`,
-      {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "x-publishable-api-key":
-            "pk_538a0b9c964e74ff9e0ca79f8f72afab30a84a9f27e3e4a9da5fb7c6cafe112d",
-        },
-      }
-    );
+    const response = await axios.get(`http://localhost:9000/store/products`, {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "x-publishable-api-key":
+          "pk_538a0b9c964e74ff9e0ca79f8f72afab30a84a9f27e3e4a9da5fb7c6cafe112d",
+      },
+    });
+    console.log(response)
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error("Axios error:", error.response?.data || error.message);
