@@ -49,6 +49,10 @@ const ThemedStack = () => {
         name="pages/auth/forgotPassword"
         options={{ title: "Reset Your Password" }}
       />
+      <Stack.Screen
+        name="pages/productPages/CategoryProduct"
+        options={{ headerShown: false }}
+      />
     </Stack>
   );
 };

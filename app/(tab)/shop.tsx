@@ -2,6 +2,8 @@ import SkeletonLoading from "@/components/atoms/SkeletonLoading";
 import { useTheme } from "@/context/ThemeContext";
 import useProductStore from "@/store/productStore";
 import { useEffect } from "react";
+import { useRouter } from "expo-router";
+
 import {
   View,
   Text,
@@ -12,12 +14,16 @@ import {
 } from "react-native";
 
 export default function ShopTab() {
+   const router = useRouter();
   const { fetchCategories, categories, storeLoading } = useProductStore();
   const theme = useTheme();
   useEffect(() => {
     fetchCategories();
   }, []);
-
+ const navigateToCategory = (id:any) => {
+   // Passing parameters via the URL
+   router.push(`/pages/productPages/CategoryProduct?id=${id}`);
+ };
   if (storeLoading) {
     return (
       <View>
@@ -43,6 +49,7 @@ export default function ShopTab() {
                 styles.categoryCard,
                 { backgroundColor: theme.secondaryBackground },
               ]}
+              onPress={() => navigateToCategory(category.id)}
             >
               <Text style={[styles.categoryName, { color: theme.text }]}>
                 {category.name}
