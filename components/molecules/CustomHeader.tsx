@@ -1,5 +1,3 @@
-// app/components/CustomHeader.tsx
-
 import { useTheme } from "@/context/ThemeContext";
 import { Feather, MaterialIcons } from "@expo/vector-icons";
 import React from "react";
@@ -15,7 +13,7 @@ const CustomHeader: React.FC<CustomHeader> = ({ title, extraFeature }) => {
   const router = useRouter();
   const theme = useTheme();
   return (
-    <View style={styles.header}>
+    <View style={[styles.header, { backgroundColor: theme.background }]}>
       <TouchableOpacity onPress={() => router.back()}>
         <MaterialIcons name="arrow-back-ios-new" size={24} color={theme.text} />
       </TouchableOpacity>
@@ -29,14 +27,21 @@ const CustomHeader: React.FC<CustomHeader> = ({ title, extraFeature }) => {
 const styles = StyleSheet.create({
   header: {
     padding: 15,
+    paddingHorizontal:20,
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    // Improved drop shadow for both platforms
+    shadowColor: "grey", // Shadow color
+    shadowOffset: { width: 0, height: 3 }, // Slightly larger shadow offset
+    shadowOpacity: 0.15, // Subtle shadow
+    shadowRadius: 5, // Soft shadow radius
+    elevation: 10, // Shadow for Android
   },
   title: {
     fontSize: 18,
-    fontWeight: 500,
+    fontWeight: "500",
     color: "white",
   },
   extra: {

@@ -14,20 +14,11 @@ import {
 import FastImage from "react-native-fast-image";
 import { HelperText, NormalText, NormalText2, Subheads } from "../atoms/Text";
 import StarRating from "../molecules/StarRating";
-const ProductCard = () => {
+const ProductCard = ({ item }: any) => {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [heartScale] = useState(new Animated.Value(0));
   const [heartOpacity] = useState(new Animated.Value(0));
   const theme = useTheme();
-  const item = {
-    id: 1,
-    name: "Product 1",
-    price: 10.99,
-    image:
-      "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    brand: "top",
-    size: "x,l,ml,s",
-  };
 
   const toggleWishlist = () => {
     setIsWishlisted((prev) => !prev);
@@ -97,21 +88,21 @@ const ProductCard = () => {
         </Pressable>
       </View>
       <FastImage
-        source={{ uri: item?.image }}
+        source={{ uri: item?.images[0]?.src }}
         style={styles.productImage}
         resizeMode="cover"
       />
       <View style={styles.productInfo}>
-        <StarRating rating={3.5}/>
-        <HelperText text={item?.brand} />
+        {item?.rating_count && <StarRating rating={item?.rating_count} />}
+        {/* <HelperText text={item?.brand} /> */}
         <Subheads text={item?.name} />
         <View style={styles.priceContainer}>
-          <NormalText2 text={(item?.price).toString()} />
+          <NormalText2 text={`₹${item?.price}`} />
         </View>
-        <View style={styles.detailsContainer}>
-          <HelperText text={`size:${item.size}`} />
-          {/* <View style={[styles.colorDot, { backgroundColor: item?.color }]} /> */}
-        </View>
+        {/* <View style={styles.detailsContainer}> */}
+        {/* <HelperText text={`size:${item.size}`} /> */}
+        {/* <View style={[styles.colorDot, { backgroundColor: item?.color }]} /> */}
+        {/* </View> */}
       </View>
     </TouchableOpacity>
   );
