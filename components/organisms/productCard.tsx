@@ -102,7 +102,7 @@ const ProductCard = () => {
         resizeMode="cover"
       />
       <View style={styles.productInfo}>
-        <StarRating rating={4.5}/>
+        <StarRating rating={3.5}/>
         <HelperText text={item?.brand} />
         <Subheads text={item?.name} />
         <View style={styles.priceContainer}>

@@ -1,8 +1,10 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function StarRating({ rating }: any) {
+    const theme = useTheme()
   // Create an array of stars based on the rating
   const stars = [];
   for (let i = 1; i <= 5; i++) {
@@ -14,7 +16,7 @@ export default function StarRating({ rating }: any) {
       );
     } else {
       stars.push(
-        <FontAwesome key={i} name="star-o" size={20} color="#FFBA49" />
+        <FontAwesome key={i} name="star-o" size={20} color={theme.lightText} />
       );
     }
   }

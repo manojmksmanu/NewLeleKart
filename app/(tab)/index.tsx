@@ -27,9 +27,8 @@ export default function HomeTab() {
   };
 
   return (
-    <ScrollView
+    <View
       style={{ backgroundColor: theme.background }}
-      contentContainerStyle={{ paddingBottom: 20 }} // Ensures smooth scrolling
     >
       <ProductPage />
       <HelperText text={"hello"} />
@@ -68,6 +67,6 @@ export default function HomeTab() {
           <ProductCard />
         </View>
       </View>
-    </ScrollView>
+    </View>
   );
 }
