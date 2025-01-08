@@ -14,6 +14,7 @@ import {
 import FastImage from "react-native-fast-image";
 import { HelperText, NormalText, NormalText2, Subheads } from "../atoms/Text";
 import StarRating from "../molecules/StarRating";
+import { router } from "expo-router";
 const ProductCard = ({ item }: any) => {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [heartScale] = useState(new Animated.Value(0));
@@ -58,8 +59,16 @@ const ProductCard = ({ item }: any) => {
     ]).start();
   };
 
+     const navigateToCategory = (id: any) => {
+       // Passing parameters via the URL
+       router.push(`/pages/productPages/ProductDetais?id=${id}`);
+     };
+
   return (
-    <TouchableOpacity style={styles.productCard}>
+    <TouchableOpacity
+      onPress={() => navigateToCategory(item.id)}
+      style={styles.productCard}
+    >
       <View
         style={{
           position: "absolute",

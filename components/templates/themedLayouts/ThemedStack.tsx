@@ -53,6 +53,10 @@ const ThemedStack = () => {
         name="pages/productPages/CategoryProduct"
         options={{ headerShown: false }}
       />
+      <Stack.Screen
+        name="pages/productPages/ProductDetais"
+        options={{ headerShown: false }}
+      />
     </Stack>
   );
 };

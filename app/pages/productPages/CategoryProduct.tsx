@@ -8,7 +8,7 @@ import {
   StatusBar,
   ScrollView,
 } from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { useRouter, useLocalSearchParams, router } from "expo-router";
 import useProductStore from "@/store/productStore";
 import { useEffect } from "react";
 import ProductCard from "@/components/organisms/productCard";
@@ -22,6 +22,8 @@ export default function CategoryProduct() {
     fetchProducts();
   }, []);
   
+
+
   return (
     <SafeAreaView
       style={{
