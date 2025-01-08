@@ -1,3 +1,4 @@
+// ProductPage.tsx
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -8,10 +9,14 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
+  Alert,
+  useColorScheme,
 } from "react-native";
 import axios from "axios";
 import { useLocalSearchParams } from "expo-router";
-import RenderHtml from "react-native-render-html"; // For rendering HTML content
+import { useCartStore } from "@/store/cartStore";
+import CustomRenderHtml from "@/components/organisms/CustomRenderHtml"; // Import the custom wrapper
+import { useTheme } from "@/context/ThemeContext"; // Import the useTheme hook
 
 // Define types for the product and variations
 interface Attribute {
@@ -53,21 +58,27 @@ const ProductPage: React.FC = () => {
     [key: string]: string[];
   }>({});
   const [loading, setLoading] = useState(true);
+  const [quantity, setQuantity] = useState(1);
+
+  // Zustand store for cart
+  const { addToCart, isInCart } = useCartStore();
+
+  // Use the theme
+  const theme = useTheme();
 
   // Fetch product and variations from the backend
   useEffect(() => {
     axios
       .get<{ product: Product; variations: Variation[] }>(
-        `http://192.168.31.240:3000/products/${17380}`
+        `http://192.168.31.240:3000/products/${id}`
       )
       .then((response) => {
         const { product, variations } = response.data;
         setProduct(product);
         setVariations(variations);
 
-        // Pre-select the first variant (or any specific variant)
         if (variations.length > 0) {
-          const preSelectedVariant = variations[0]; // Change this logic as needed
+          const preSelectedVariant = variations[0];
           const initialAttributes: { [key: string]: string } = {};
           preSelectedVariant.attributes.forEach((attr) => {
             initialAttributes[attr.name] = attr.option;
@@ -94,7 +105,6 @@ const ProductPage: React.FC = () => {
   // Find matching variant based on selected attributes
   useEffect(() => {
     if (variations && variations.length > 0) {
-      // Filter the variations that match the selected attributes
       const matchingVariant = variations.find((variant) =>
         variant.attributes.every(
           (attr) =>
@@ -109,11 +119,9 @@ const ProductPage: React.FC = () => {
         setSelectedVariantId(null);
       }
 
-      // Dynamically filter available options for each attribute
       const updatedAvailableOptions: { [key: string]: string[] } = {};
       product?.attributes.forEach((attribute) => {
         const validOptions = attribute.options.filter((option) => {
-          // Check if this option is valid with the current selected attributes
           return variations.some((variant) =>
             variant.attributes.every((attr) => {
               if (attr.name === attribute.name) {
@@ -132,19 +140,46 @@ const ProductPage: React.FC = () => {
     }
   }, [selectedAttributes, variations, product]);
 
+  // Handle Add to Cart
+  const handleAddToCart = () => {
+    if (!product) return;
+
+    const item = {
+      product_id: product.id,
+      variation_id: selectedVariantId || undefined,
+      quantity: quantity,
+      image: product.images[0]?.src || "",
+      name: product.name,
+      attributes:
+        variations.find((v) => v.id === selectedVariantId)?.attributes || [],
+    };
+    addToCart(item);
+    Alert.alert("Added to Cart", "The product has been added to your cart.");
+  };
+
+  // Check if the selected variant is in the cart
+  const isSelectedVariantInCart = isInCart(
+    product?.id || 0,
+    selectedVariantId || undefined
+  );
+
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
-        <Text>Loading...</Text>
+      <View
+        style={[styles.loadingContainer, { backgroundColor: theme.background }]}
+      >
+        <ActivityIndicator size="large" color={theme.text} />
+        <Text style={{ color: theme.text }}>Loading...</Text>
       </View>
     );
   }
 
   if (!product) {
     return (
-      <View style={styles.loadingContainer}>
-        <Text>Product not found.</Text>
+      <View
+        style={[styles.loadingContainer, { backgroundColor: theme.background }]}
+      >
+        <Text style={{ color: theme.text }}>Product not found.</Text>
       </View>
     );
   }
@@ -153,7 +188,12 @@ const ProductPage: React.FC = () => {
   const { width } = Dimensions.get("window");
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView
+      contentContainerStyle={[
+        styles.container,
+        { backgroundColor: theme.background },
+      ]}
+    >
       {/* Product Images */}
       {product.images && product.images.length > 0 && (
         <Image
@@ -164,21 +204,47 @@ const ProductPage: React.FC = () => {
       )}
 
       {/* Product Name */}
-      <Text style={styles.productName}>{product.name}</Text>
+      <Text style={[styles.productName, { color: theme.text }]}>
+        {product.name}
+      </Text>
 
       {/* Product Price */}
-      <Text style={styles.productPrice}>${product.price}</Text>
+      <Text style={[styles.productPrice, { color: theme.primary }]}>
+        ${product.price}
+      </Text>
 
       {/* Product Description */}
       {product.description && (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Description</Text>
-          <RenderHtml
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>
+            Description
+          </Text>
+          <CustomRenderHtml
             contentWidth={width}
             source={{ html: product.description }}
-            tagsStyles={{
-              p: { fontSize: 16, color: "#333", lineHeight: 24 },
+            baseStyle={{
+              color: theme.text,
+              fontSize: 16,
+              lineHeight: 24,
             }}
+            tagsStyles={{
+              p: { color: theme.text, fontSize: 16, lineHeight: 24 },
+              h1: { color: theme.text, fontSize: 24, fontWeight: "bold" },
+              h2: { color: theme.text, fontSize: 22, fontWeight: "bold" },
+              h3: { color: theme.text, fontSize: 20, fontWeight: "bold" },
+              h4: { color: theme.text, fontSize: 18, fontWeight: "bold" },
+              h5: { color: theme.text, fontSize: 16, fontWeight: "bold" },
+              h6: { color: theme.text, fontSize: 14, fontWeight: "bold" },
+              span: { color: theme.text },
+              strong: { color: theme.text, fontWeight: "bold" },
+              em: { color: theme.text, fontStyle: "italic" },
+              a: { color: theme.primary, textDecorationLine: "underline" },
+              li: { color: theme.text },
+              ul: { color: theme.text },
+              ol: { color: theme.text },
+              blockquote: { color: theme.text, fontStyle: "italic" },
+            }}
+            enableCSSInlineProcessing={true}
           />
         </View>
       )}
@@ -186,13 +252,35 @@ const ProductPage: React.FC = () => {
       {/* Product Short Description */}
       {product.short_description && (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Overview</Text>
-          <RenderHtml
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>
+            Overview
+          </Text>
+          <CustomRenderHtml
             contentWidth={width}
             source={{ html: product.short_description }}
-            tagsStyles={{
-              p: { fontSize: 16, color: "#666", lineHeight: 24 },
+            baseStyle={{
+              color: theme.text,
+              fontSize: 16,
+              lineHeight: 24,
             }}
+            tagsStyles={{
+              p: { color: theme.text, fontSize: 16, lineHeight: 24 },
+              h1: { color: theme.text, fontSize: 24, fontWeight: "bold" },
+              h2: { color: theme.text, fontSize: 22, fontWeight: "bold" },
+              h3: { color: theme.text, fontSize: 20, fontWeight: "bold" },
+              h4: { color: theme.text, fontSize: 18, fontWeight: "bold" },
+              h5: { color: theme.text, fontSize: 16, fontWeight: "bold" },
+              h6: { color: theme.text, fontSize: 14, fontWeight: "bold" },
+              span: { color: theme.text },
+              strong: { color: theme.text, fontWeight: "bold" },
+              em: { color: theme.text, fontStyle: "italic" },
+              a: { color: theme.primary, textDecorationLine: "underline" },
+              li: { color: theme.text },
+              ul: { color: theme.text },
+              ol: { color: theme.text },
+              blockquote: { color: theme.text, fontStyle: "italic" },
+            }}
+            enableCSSInlineProcessing={true}
           />
         </View>
       )}
@@ -200,10 +288,21 @@ const ProductPage: React.FC = () => {
       {/* Product Categories */}
       {product.categories && product.categories.length > 0 && (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Categories</Text>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>
+            Categories
+          </Text>
           <View style={styles.categoriesContainer}>
             {product.categories.map((category) => (
-              <Text key={category.id} style={styles.category}>
+              <Text
+                key={category.id}
+                style={[
+                  styles.category,
+                  {
+                    backgroundColor: theme.secondaryBackground,
+                    color: theme.text,
+                  },
+                ]}
+              >
                 {category.name}
               </Text>
             ))}
@@ -214,10 +313,19 @@ const ProductPage: React.FC = () => {
       {/* Product Tags */}
       {product.tags && product.tags.length > 0 && (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Tags</Text>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>Tags</Text>
           <View style={styles.tagsContainer}>
             {product.tags.map((tag) => (
-              <Text key={tag.id} style={styles.tag}>
+              <Text
+                key={tag.id}
+                style={[
+                  styles.tag,
+                  {
+                    backgroundColor: theme.secondaryBackground,
+                    color: theme.text,
+                  },
+                ]}
+              >
                 {tag.name}
               </Text>
             ))}
@@ -226,12 +334,16 @@ const ProductPage: React.FC = () => {
       )}
 
       {/* Product Attributes */}
-      <Text style={styles.sectionTitle}>Attributes:</Text>
+      <Text style={[styles.sectionTitle, { color: theme.text }]}>
+        Attributes:
+      </Text>
       {product?.attributes?.map(
         (attribute) =>
           attribute.variation && (
             <View key={attribute.id} style={styles.attributeContainer}>
-              <Text style={styles.attributeName}>{attribute.name}</Text>
+              <Text style={[styles.attributeName, { color: theme.text }]}>
+                {attribute.name}
+              </Text>
               <View style={styles.optionsContainer}>
                 {attribute.options?.map((option) => {
                   const isOptionAvailable =
@@ -244,16 +356,28 @@ const ProductPage: React.FC = () => {
                       }
                       style={[
                         styles.optionButton,
-                        selectedAttributes[attribute.name] === option &&
-                          styles.selectedOptionButton,
-                        !isOptionAvailable && styles.disabledOptionButton,
+                        {
+                          backgroundColor: theme.secondaryBackground,
+                          borderColor: theme.text,
+                        },
+                        selectedAttributes[attribute.name] === option && {
+                          backgroundColor: theme.primary,
+                        },
+                        !isOptionAvailable && {
+                          opacity: 0.2,
+                          backgroundColor: theme.secondaryBackground,
+                          borderColor: theme.lightText,
+                        },
                       ]}
                       disabled={!isOptionAvailable}
                     >
                       <Text
                         style={[
                           styles.optionText,
-                          !isOptionAvailable && styles.disabledOptionText,
+                          { color: theme.text },
+                          !isOptionAvailable && {
+                            color: theme.lightText,
+                          },
                         ]}
                       >
                         {option}
@@ -267,9 +391,46 @@ const ProductPage: React.FC = () => {
       )}
 
       {/* Selected Variant ID */}
-      <Text style={styles.selectedVariant}>
+      <Text style={[styles.selectedVariant, { color: theme.text }]}>
         Selected Variant ID: {selectedVariantId || "No variant selected"}
       </Text>
+
+      {/* Quantity Selector */}
+      <View style={styles.quantityContainer}>
+        <TouchableOpacity
+          onPress={() => setQuantity((prev) => (prev > 1 ? prev - 1 : 1))}
+          style={[styles.quantityButton, { backgroundColor: theme.primary }]}
+        >
+          <Text
+            style={[styles.quantityButtonText, { color: theme.buttonText }]}
+          >
+            -
+          </Text>
+        </TouchableOpacity>
+        <Text style={[styles.quantityText, { color: theme.text }]}>
+          {quantity}
+        </Text>
+        <TouchableOpacity
+          onPress={() => setQuantity((prev) => prev + 1)}
+          style={[styles.quantityButton, { backgroundColor: theme.primary }]}
+        >
+          <Text
+            style={[styles.quantityButtonText, { color: theme.buttonText }]}
+          >
+            +
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Add to Cart Button */}
+      <TouchableOpacity
+        onPress={handleAddToCart}
+        style={[styles.addToCartButton, { backgroundColor: theme.primary }]}
+      >
+        <Text style={[styles.addToCartText, { color: theme.buttonText }]}>
+          {isSelectedVariantInCart ? "In Your Bag" : "Add to Cart"}
+        </Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 };
@@ -277,7 +438,6 @@ const ProductPage: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     padding: 16,
-    backgroundColor: "#fff",
   },
   loadingContainer: {
     flex: 1,
@@ -294,12 +454,10 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 10,
-    color: "#333",
   },
   productPrice: {
     fontSize: 22,
     fontWeight: "bold",
-    color: "#e91e63",
     marginBottom: 20,
   },
   section: {
@@ -309,35 +467,30 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 10,
-    color: "#333",
   },
   categoriesContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
   },
   category: {
-    backgroundColor: "#f0f0f0",
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 20,
     marginRight: 8,
     marginBottom: 8,
     fontSize: 14,
-    color: "#666",
   },
   tagsContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
   },
   tag: {
-    backgroundColor: "#e0e0e0",
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 20,
     marginRight: 8,
     marginBottom: 8,
     fontSize: 14,
-    color: "#666",
   },
   attributeContainer: {
     marginBottom: 20,
@@ -351,8 +504,6 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
   },
   optionButton: {
-    backgroundColor: "#fff",
-    borderColor: "#000",
     borderWidth: 1,
     paddingVertical: 10,
     paddingHorizontal: 15,
@@ -360,23 +511,39 @@ const styles = StyleSheet.create({
     marginRight: 10,
     marginBottom: 10,
   },
-  selectedOptionButton: {
-    backgroundColor: "lightblue",
-  },
-  disabledOptionButton: {
-    backgroundColor: "#f0f0f0",
-    borderColor: "#ccc",
-  },
   optionText: {
     fontSize: 16,
-  },
-  disabledOptionText: {
-    color: "#ccc",
   },
   selectedVariant: {
     fontSize: 18,
     marginTop: 20,
     fontWeight: "bold",
+  },
+  quantityContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 20,
+  },
+  quantityButton: {
+    padding: 10,
+    borderRadius: 5,
+  },
+  quantityButtonText: {
+    fontSize: 20,
+  },
+  quantityText: {
+    fontSize: 18,
+    marginHorizontal: 20,
+  },
+  addToCartButton: {
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    marginTop: 20,
+  },
+  addToCartText: {
+    fontSize: 16,
   },
 });
 

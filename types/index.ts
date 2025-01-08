@@ -31,3 +31,9 @@ export interface Cart {
   id: string;
   items: CartItem[];
 }
+// Assuming you have a Category type in your store or elsewhere
+export interface Category {
+  id: string;
+  name: string;
+  image?: string;  // Make image optional
+}

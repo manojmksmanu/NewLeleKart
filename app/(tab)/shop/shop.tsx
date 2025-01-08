@@ -3,7 +3,7 @@ import { useTheme } from "@/context/ThemeContext";
 import useProductStore from "@/store/productStore";
 import { useEffect } from "react";
 import { useRouter } from "expo-router";
-
+import { Category } from "@/types";
 import {
   View,
   Text,
@@ -14,19 +14,22 @@ import {
 } from "react-native";
 
 export default function ShopTab() {
-   const router = useRouter();
+  const router = useRouter();
   const { fetchCategories, categories, storeLoading } = useProductStore();
   const theme = useTheme();
+
   useEffect(() => {
     fetchCategories();
   }, []);
- const navigateToCategory = (id:any) => {
-   // Passing parameters via the URL
-   router.push(`/pages/productPages/CategoryProduct?id=${id}`);
- };
+
+  const navigateToCategory = (id: any) => {
+    // Passing parameters via the URL
+    router.push(`/shop/categoriesProducts?id=${id}`);
+  };
+
   if (storeLoading) {
     return (
-      <View>
+      <View style={{ backgroundColor: theme.background }}>
         <SkeletonLoading />
         <SkeletonLoading />
         <SkeletonLoading />
@@ -62,7 +65,7 @@ export default function ShopTab() {
                 />
               ) : (
                 <Image
-                  source={require("../../assets/images/categories.png")}
+                  source={require("../../../assets/images/categories.png")}
                   style={styles.categoryImage}
                   resizeMode="cover"
                 />
@@ -101,7 +104,7 @@ const styles = StyleSheet.create({
   },
   categoryName: {
     fontSize: 16,
-    fontWeight: 600,
+    fontWeight: "600",
     marginLeft: 20,
     width: "40%",
   },

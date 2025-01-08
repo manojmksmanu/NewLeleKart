@@ -8,7 +8,6 @@ import FullScreenLoading from "@/components/atoms/FullScreenLoading";
 import SkeletonLoading from "@/components/atoms/SkeletonLoading";
 import { Headline, HelperText } from "@/components/atoms/Text";
 import ProductCard from "@/components/organisms/productCard";
-import ProductPage from "@/components/templates/ProductPage";
 import { useLoading } from "@/context/FullScreenLoaderContext";
 import { useTheme } from "@/context/ThemeContext";
 import axios from "axios";
@@ -30,7 +29,6 @@ export default function HomeTab() {
     <View
       style={{ backgroundColor: theme.background }}
     >
-      <ProductPage />
       <HelperText text={"hello"} />
       <SkeletonLoading />
 

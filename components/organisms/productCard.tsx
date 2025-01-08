@@ -59,10 +59,9 @@ const ProductCard = ({ item }: any) => {
     ]).start();
   };
 
-     const navigateToCategory = (id: any) => {
-       // Passing parameters via the URL
-       router.push(`/pages/productPages/ProductDetais?id=${id}`);
-     };
+  const navigateToCategory = (id: any) => {
+    router.push(`/(tab)/shop/productDetails?id=${id}`);
+  };
 
   return (
     <TouchableOpacity
@@ -89,11 +88,6 @@ const ProductCard = ({ item }: any) => {
             size={16}
             color={isWishlisted ? theme.primary : theme.lightText}
           />
-          {/* <Icon
-            name={isWishlisted ? "heart" : "heart-outline"}
-            size={24}
-            color={isWishlisted ? "red" : "grey"}
-          /> */}
         </Pressable>
       </View>
       <FastImage
@@ -103,15 +97,10 @@ const ProductCard = ({ item }: any) => {
       />
       <View style={styles.productInfo}>
         {item?.rating_count && <StarRating rating={item?.rating_count} />}
-        {/* <HelperText text={item?.brand} /> */}
         <Subheads text={item?.name} />
         <View style={styles.priceContainer}>
           <NormalText2 text={`₹${item?.price}`} />
         </View>
-        {/* <View style={styles.detailsContainer}> */}
-        {/* <HelperText text={`size:${item.size}`} /> */}
-        {/* <View style={[styles.colorDot, { backgroundColor: item?.color }]} /> */}
-        {/* </View> */}
       </View>
     </TouchableOpacity>
   );

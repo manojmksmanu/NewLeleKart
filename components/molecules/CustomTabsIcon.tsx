@@ -2,6 +2,7 @@
 import React from "react";
 import { Image, StyleSheet, Text, useColorScheme, View } from "react-native";
 import { useTheme } from "../../context/ThemeContext"; // Adjust path accordingly
+import { useCartStore } from "@/store/cartStore";
 
 type CustomTabIconProps = {
   focused: boolean;
@@ -16,6 +17,7 @@ const CustomTabIcon: React.FC<CustomTabIconProps> = ({
   darkModeIcon,
   name,
 }) => {
+  const { getTotalItems } = useCartStore();
   const colorScheme = useColorScheme();
   const theme = useTheme();
   // Determine which icon to use based on the current theme and whether the tab is focused
@@ -29,9 +31,16 @@ const CustomTabIcon: React.FC<CustomTabIconProps> = ({
       : lightModeIcon.inactive;
 
   return (
-    <View style={{width:50, display:'flex',alignItems:'center'}}>
+    <View style={{ width: 50, display: "flex", alignItems: "center" }}>
       <Image source={icon} style={styles.icon} />
-      <Text style={[styles.tabLabel,{color:theme.lightText}, focused && { color: theme.primary }]}>
+      {/* {name === "Bag" ? <Text style={{position:'absolute',zIndex:100,backgroundColor:'white',borderRadius:"100%",}}>{getTotalItems()}</Text> : ""} */}
+      <Text
+        style={[
+          styles.tabLabel,
+          { color: theme.lightText },
+          focused && { color: theme.primary },
+        ]}
+      >
         {name}
       </Text>
     </View>
@@ -45,8 +54,8 @@ const styles = StyleSheet.create({
   },
   tabLabel: {
     fontSize: 10,
-    fontWeight:700,
-    textAlign:'center'
+    fontWeight: 700,
+    textAlign: "center",
   },
   focusedText: {
     color: "#0a7ea4", // Active tab color

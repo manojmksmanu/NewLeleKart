@@ -5,6 +5,7 @@ interface Category {
   id: number;
   name: string;
   slug: string;
+  image?: string; // Make image optional
 }
 
 interface Product {

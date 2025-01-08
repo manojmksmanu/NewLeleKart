@@ -1,3 +1,4 @@
+// store/cartStore.ts
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -6,6 +7,9 @@ interface CartItem {
   product_id: number;
   variation_id?: number;
   quantity: number;
+  image: string; // Product image URL
+  name: string; // Product name
+  attributes: { name: string; option: string }[]; // Variant attributes
 }
 
 interface CartState {
@@ -23,6 +27,7 @@ interface CartState {
   clearCart: () => void;
   getTotalItems: () => number;
   getSubtotal: () => number;
+  isInCart: (product_id: number, variation_id?: number) => boolean;
 }
 
 export const useCartStore = create<CartState>()(
@@ -95,6 +100,15 @@ export const useCartStore = create<CartState>()(
         const { cart } = get();
         // Replace this with actual product prices from your API
         return cart.reduce((total, item) => total + item.quantity * 10, 0); // Example: $10 per item
+      },
+
+      // Check if a product/variant is in the cart
+      isInCart: (product_id, variation_id) => {
+        const { cart } = get();
+        return cart.some(
+          (item) =>
+            item.product_id === product_id && item.variation_id === variation_id
+        );
       },
     }),
     {

@@ -8,7 +8,7 @@ import {
   StyleSheet,
   Image,
 } from "react-native";
-import { useCartStore } from "@/store/cartStore";
+import { useCartStore } from '@/store/cartStore'
 
 const CartViewPage = () => {
   const { cart, updateQuantity, removeFromCart, getSubtotal, getTotalItems } =

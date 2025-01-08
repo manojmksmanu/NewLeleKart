@@ -8,7 +8,7 @@ import {
   StatusBar,
   ScrollView,
 } from "react-native";
-import { useRouter, useLocalSearchParams, router } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import useProductStore from "@/store/productStore";
 import { useEffect } from "react";
 import ProductCard from "@/components/organisms/productCard";
@@ -21,20 +21,23 @@ export default function CategoryProduct() {
   useEffect(() => {
     fetchProducts();
   }, []);
-  
-
 
   return (
     <SafeAreaView
       style={{
         flex: 1,
         backgroundColor: theme.background,
-        paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0, // Adjust for Android status bar
+        paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
       }}
     >
       <View style={{}}>
         <CustomHeader title="Category Product" />
-        <ScrollView contentContainerStyle={{paddingBottom:40}}>
+        <ScrollView
+          contentContainerStyle={{
+            paddingBottom: 40,
+            backgroundColor: theme.background,
+          }}
+        >
           <View
             style={{
               display: "flex",
@@ -42,7 +45,6 @@ export default function CategoryProduct() {
               flexWrap: "wrap",
               justifyContent: "space-between",
             }}
-           
           >
             {productsByCategory &&
               productsByCategory.map((product, index) => {
@@ -50,7 +52,7 @@ export default function CategoryProduct() {
                   <View key={index} style={{ width: "50%", padding: 5 }}>
                     <ProductCard item={product} />
                   </View>
-                );
+                )
               })}
           </View>
         </ScrollView>
