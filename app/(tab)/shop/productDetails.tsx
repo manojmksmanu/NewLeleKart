@@ -11,12 +11,15 @@ import {
   Dimensions,
   Alert,
   useColorScheme,
+  Platform,
+  StatusBar,
 } from "react-native";
 import axios from "axios";
 import { useLocalSearchParams } from "expo-router";
 import { useCartStore } from "@/store/cartStore";
 import CustomRenderHtml from "@/components/organisms/CustomRenderHtml"; // Import the custom wrapper
 import { useTheme } from "@/context/ThemeContext"; // Import the useTheme hook
+import ImageCarousel from "@/components/molecules/ImageCarouselProductDetails";
 
 // Define types for the product and variations
 interface Attribute {
@@ -192,15 +195,12 @@ const ProductPage: React.FC = () => {
       contentContainerStyle={[
         styles.container,
         { backgroundColor: theme.background },
+        { paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0 },
       ]}
     >
       {/* Product Images */}
       {product.images && product.images.length > 0 && (
-        <Image
-          source={{ uri: product.images[0].src }}
-          style={styles.productImage}
-          resizeMode="cover"
-        />
+        <ImageCarousel images={product.images} />
       )}
 
       {/* Product Name */}
@@ -212,126 +212,6 @@ const ProductPage: React.FC = () => {
       <Text style={[styles.productPrice, { color: theme.primary }]}>
         ${product.price}
       </Text>
-
-      {/* Product Description */}
-      {product.description && (
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>
-            Description
-          </Text>
-          <CustomRenderHtml
-            contentWidth={width}
-            source={{ html: product.description }}
-            baseStyle={{
-              color: theme.text,
-              fontSize: 16,
-              lineHeight: 24,
-            }}
-            tagsStyles={{
-              p: { color: theme.text, fontSize: 16, lineHeight: 24 },
-              h1: { color: theme.text, fontSize: 24, fontWeight: "bold" },
-              h2: { color: theme.text, fontSize: 22, fontWeight: "bold" },
-              h3: { color: theme.text, fontSize: 20, fontWeight: "bold" },
-              h4: { color: theme.text, fontSize: 18, fontWeight: "bold" },
-              h5: { color: theme.text, fontSize: 16, fontWeight: "bold" },
-              h6: { color: theme.text, fontSize: 14, fontWeight: "bold" },
-              span: { color: theme.text },
-              strong: { color: theme.text, fontWeight: "bold" },
-              em: { color: theme.text, fontStyle: "italic" },
-              a: { color: theme.primary, textDecorationLine: "underline" },
-              li: { color: theme.text },
-              ul: { color: theme.text },
-              ol: { color: theme.text },
-              blockquote: { color: theme.text, fontStyle: "italic" },
-            }}
-            enableCSSInlineProcessing={true}
-          />
-        </View>
-      )}
-
-      {/* Product Short Description */}
-      {product.short_description && (
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>
-            Overview
-          </Text>
-          <CustomRenderHtml
-            contentWidth={width}
-            source={{ html: product.short_description }}
-            baseStyle={{
-              color: theme.text,
-              fontSize: 16,
-              lineHeight: 24,
-            }}
-            tagsStyles={{
-              p: { color: theme.text, fontSize: 16, lineHeight: 24 },
-              h1: { color: theme.text, fontSize: 24, fontWeight: "bold" },
-              h2: { color: theme.text, fontSize: 22, fontWeight: "bold" },
-              h3: { color: theme.text, fontSize: 20, fontWeight: "bold" },
-              h4: { color: theme.text, fontSize: 18, fontWeight: "bold" },
-              h5: { color: theme.text, fontSize: 16, fontWeight: "bold" },
-              h6: { color: theme.text, fontSize: 14, fontWeight: "bold" },
-              span: { color: theme.text },
-              strong: { color: theme.text, fontWeight: "bold" },
-              em: { color: theme.text, fontStyle: "italic" },
-              a: { color: theme.primary, textDecorationLine: "underline" },
-              li: { color: theme.text },
-              ul: { color: theme.text },
-              ol: { color: theme.text },
-              blockquote: { color: theme.text, fontStyle: "italic" },
-            }}
-            enableCSSInlineProcessing={true}
-          />
-        </View>
-      )}
-
-      {/* Product Categories */}
-      {product.categories && product.categories.length > 0 && (
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>
-            Categories
-          </Text>
-          <View style={styles.categoriesContainer}>
-            {product.categories.map((category) => (
-              <Text
-                key={category.id}
-                style={[
-                  styles.category,
-                  {
-                    backgroundColor: theme.secondaryBackground,
-                    color: theme.text,
-                  },
-                ]}
-              >
-                {category.name}
-              </Text>
-            ))}
-          </View>
-        </View>
-      )}
-
-      {/* Product Tags */}
-      {product.tags && product.tags.length > 0 && (
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>Tags</Text>
-          <View style={styles.tagsContainer}>
-            {product.tags.map((tag) => (
-              <Text
-                key={tag.id}
-                style={[
-                  styles.tag,
-                  {
-                    backgroundColor: theme.secondaryBackground,
-                    color: theme.text,
-                  },
-                ]}
-              >
-                {tag.name}
-              </Text>
-            ))}
-          </View>
-        </View>
-      )}
 
       {/* Product Attributes */}
       <Text style={[styles.sectionTitle, { color: theme.text }]}>
@@ -431,6 +311,126 @@ const ProductPage: React.FC = () => {
           {isSelectedVariantInCart ? "In Your Bag" : "Add to Cart"}
         </Text>
       </TouchableOpacity>
+
+      {/* Product Categories */}
+      {product.categories && product.categories.length > 0 && (
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>
+            Categories
+          </Text>
+          <View style={styles.categoriesContainer}>
+            {product.categories.map((category) => (
+              <Text
+                key={category.id}
+                style={[
+                  styles.category,
+                  {
+                    backgroundColor: theme.secondaryBackground,
+                    color: theme.text,
+                  },
+                ]}
+              >
+                {category.name}
+              </Text>
+            ))}
+          </View>
+        </View>
+      )}
+
+      {/* Product Tags */}
+      {product.tags && product.tags.length > 0 && (
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>Tags</Text>
+          <View style={styles.tagsContainer}>
+            {product.tags.map((tag) => (
+              <Text
+                key={tag.id}
+                style={[
+                  styles.tag,
+                  {
+                    backgroundColor: theme.secondaryBackground,
+                    color: theme.text,
+                  },
+                ]}
+              >
+                {tag.name}
+              </Text>
+            ))}
+          </View>
+        </View>
+      )}
+
+      {/* Product Description */}
+      {product.description && (
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>
+            Description
+          </Text>
+          <CustomRenderHtml
+            contentWidth={width}
+            source={{ html: product.description }}
+            baseStyle={{
+              color: theme.text,
+              fontSize: 16,
+              lineHeight: 24,
+            }}
+            tagsStyles={{
+              p: { color: theme.text, fontSize: 16, lineHeight: 24 },
+              h1: { color: theme.text, fontSize: 24, fontWeight: "bold" },
+              h2: { color: theme.text, fontSize: 22, fontWeight: "bold" },
+              h3: { color: theme.text, fontSize: 20, fontWeight: "bold" },
+              h4: { color: theme.text, fontSize: 18, fontWeight: "bold" },
+              h5: { color: theme.text, fontSize: 16, fontWeight: "bold" },
+              h6: { color: theme.text, fontSize: 14, fontWeight: "bold" },
+              span: { color: theme.text },
+              strong: { color: theme.text, fontWeight: "bold" },
+              em: { color: theme.text, fontStyle: "italic" },
+              a: { color: theme.primary, textDecorationLine: "underline" },
+              li: { color: theme.text },
+              ul: { color: theme.text },
+              ol: { color: theme.text },
+              blockquote: { color: theme.text, fontStyle: "italic" },
+            }}
+            enableCSSInlineProcessing={true}
+          />
+        </View>
+      )}
+
+      {/* Product Short Description */}
+      {product.short_description && (
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>
+            Overview
+          </Text>
+          <CustomRenderHtml
+            contentWidth={width}
+            source={{ html: product.short_description }}
+            baseStyle={{
+              color: theme.text,
+              fontSize: 16,
+              lineHeight: 24,
+            }}
+            tagsStyles={{
+              p: { color: theme.text, fontSize: 16, lineHeight: 24 },
+              h1: { color: theme.text, fontSize: 24, fontWeight: "bold" },
+              h2: { color: theme.text, fontSize: 22, fontWeight: "bold" },
+              h3: { color: theme.text, fontSize: 20, fontWeight: "bold" },
+              h4: { color: theme.text, fontSize: 18, fontWeight: "bold" },
+              h5: { color: theme.text, fontSize: 16, fontWeight: "bold" },
+              h6: { color: theme.text, fontSize: 14, fontWeight: "bold" },
+              span: { color: theme.text },
+              strong: { color: theme.text, fontWeight: "bold" },
+              em: { color: theme.text, fontStyle: "italic" },
+              a: { color: theme.primary, textDecorationLine: "underline" },
+              li: { color: theme.text },
+              ul: { color: theme.text },
+              ol: { color: theme.text },
+              blockquote: { color: theme.text, fontStyle: "italic" },
+            }}
+            enableCSSInlineProcessing={true}
+          />
+        </View>
+      )}
     </ScrollView>
   );
 };
@@ -471,6 +471,7 @@ const styles = StyleSheet.create({
   categoriesContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
+    width:"100%"
   },
   category: {
     paddingVertical: 6,
