@@ -36,4 +36,5 @@ export interface Category {
   id: string;
   name: string;
   image?: string;  // Make image optional
+  src?:string;
 }

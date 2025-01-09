@@ -63,6 +63,12 @@ const ProductCard = ({ item }: any) => {
     router.push(`/(tab)/shop/productDetails?id=${id}`);
   };
 
+  if(item){
+    if(item?.images?.length===0){
+      return <></>
+    }
+  }
+
   return (
     <TouchableOpacity
       onPress={() => navigateToCategory(item.id)}

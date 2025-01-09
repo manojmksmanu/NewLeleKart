@@ -12,14 +12,19 @@ type CustomHeader = {
 const CustomHeader: React.FC<CustomHeader> = ({ title, extraFeature }) => {
   const router = useRouter();
   const theme = useTheme();
+  const navigationToSearch = () => {
+    router.push(`/(tab)/shop/search`);
+  };
+
   return (
-    <View style={[styles.header, { backgroundColor: theme.background }]}>
+    <View style={[styles.header, { backgroundColor: theme.secondaryBackground }]}>
       <TouchableOpacity onPress={() => router.back()}>
         <MaterialIcons name="arrow-back-ios-new" size={24} color={theme.text} />
       </TouchableOpacity>
       <Text style={[styles.title, { color: theme.text }]}>{title}</Text>
-      {extraFeature && <Text style={styles.extra}>Extra Features Enabled</Text>}
-      <Feather name="search" size={24} color={theme.text} />
+      <TouchableOpacity onPress={navigationToSearch}>
+        <Feather name="search" size={24} color={theme.text} />
+      </TouchableOpacity>
     </View>
   );
 };
@@ -27,17 +32,18 @@ const CustomHeader: React.FC<CustomHeader> = ({ title, extraFeature }) => {
 const styles = StyleSheet.create({
   header: {
     padding: 15,
-    paddingHorizontal:20,
+    paddingHorizontal: 20,
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     // Improved drop shadow for both platforms
-    shadowColor: "grey", // Shadow color
+    shadowColor: "#ccc", // Shadow color
     shadowOffset: { width: 0, height: 3 }, // Slightly larger shadow offset
     shadowOpacity: 0.15, // Subtle shadow
     shadowRadius: 5, // Soft shadow radius
     elevation: 10, // Shadow for Android
+    zIndex:100
   },
   title: {
     fontSize: 18,

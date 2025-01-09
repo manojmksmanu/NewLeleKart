@@ -19,12 +19,14 @@ import { Headline, Headline3, Subheads } from "@/components/atoms/Text";
 import { useTheme } from "@/context/ThemeContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { ButtonOutlinBig, ButtonPrimaryBig } from "@/components/atoms/Button";
+import { useRouter } from "expo-router";
 
 const CartViewPage = () => {
   const { cart, updateQuantity, removeFromCart, getSubtotal, getTotalItems } =
     useCartStore();
     const { width,height } = Dimensions.get("window"); 
   const theme = useTheme();
+  const router = useRouter();
   const handleUpdateQuantity = (
     product_id: number,
     variation_id: number | undefined,

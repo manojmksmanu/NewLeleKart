@@ -12,6 +12,8 @@ import {
   ScrollView,
   StyleSheet,
 } from "react-native";
+import TabsHeader from "@/components/molecules/TabsHeader";
+import CustomHeader from "@/components/molecules/CustomHeader";
 
 export default function ShopTab() {
   const router = useRouter();
@@ -39,51 +41,62 @@ export default function ShopTab() {
   }
 
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: theme.background }]}
-      contentContainerStyle={{ paddingVertical: 20, paddingTop: 30 }}
+    <View
+      style={{
+        flex: 1,
+        paddingBottom: 100,
+        backgroundColor: theme.background,
+
+
+      }}
     >
-      <View style={styles.categoriesContainer}>
-        {categories && categories.length > 0 ? (
-          categories.map((category, i) => (
-            <TouchableOpacity
-              key={i}
-              style={[
-                styles.categoryCard,
-                { backgroundColor: theme.secondaryBackground },
-              ]}
-              onPress={() => navigateToCategory(category.id)}
-            >
-              <Text style={[styles.categoryName, { color: theme.text }]}>
-                {category.name}
-              </Text>
-              {category?.image ? (
-                <Image
-                  source={{ uri: category?.image }}
-                  style={styles.categoryImage}
-                  resizeMode="cover"
-                />
-              ) : (
-                <Image
-                  source={require("../../../assets/images/categories.png")}
-                  style={styles.categoryImage}
-                  resizeMode="cover"
-                />
-              )}
-            </TouchableOpacity>
-          ))
-        ) : (
-          <Text style={styles.noCategoriesText}>No categories available.</Text>
-        )}
-      </View>
-    </ScrollView>
+      <CustomHeader title="All Categories" />
+      <ScrollView
+        style={[styles.container, { backgroundColor: theme.background,marginBottom:0 }]}
+      >
+        <View style={styles.categoriesContainer}>
+          {categories && categories.length > 0 ? (
+            categories.map((category, i) => (
+              <TouchableOpacity
+                key={i}
+                style={[
+                  styles.categoryCard,
+                  { backgroundColor: theme.secondaryBackground },
+                ]}
+                onPress={() => navigateToCategory(category.id)}
+              >
+                <Text style={[styles.categoryName, { color: theme.text }]}>
+                  {category.name}
+                </Text>
+                {category?.image ? (
+                  <Image
+                    source={{ uri: category?.image?.src }}
+                    style={styles.categoryImage}
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <Image
+                    source={require("../../../assets/images/categories.png")}
+                    style={styles.categoryImage}
+                    resizeMode="cover"
+                  />
+                )}
+              </TouchableOpacity>
+            ))
+          ) : (
+            <Text style={styles.noCategoriesText}>
+              No categories available.
+            </Text>
+          )}
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 20,
   },
   categoriesContainer: {
     padding: 10,

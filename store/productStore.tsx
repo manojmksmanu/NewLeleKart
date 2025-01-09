@@ -1,11 +1,11 @@
 import { create } from "zustand";
 import axios from "axios";
-
+import { api } from "@/utils/config";
 interface Category {
   id: number;
   name: string;
   slug: string;
-  image?: string; // Make image optional
+  image?: { src: string }; // Define image as an object with a src property
 }
 
 interface Product {
@@ -13,26 +13,27 @@ interface Product {
   name: string;
   price: string;
   category: string;
+  images:string;
 }
 
 interface StoreState {
   categories: Category[];
   productsByCategory: Product[];
+  selectedCategory: any; // Add selectedCategory state
   storeLoading: boolean;
 
   setCategories: (categories: Category[]) => void;
   setProductsByCategory: (productsByCategory: Product[]) => void;
+  setSelectedCategory: (selectedCategory: Category | null) => void; // Add setSelectedCategory
   fetchCategories: (queryParams?: Record<string, any>) => Promise<void>;
   fetchProducts: (queryParams?: Record<string, any>) => Promise<void>;
+  fetchCategoryById: (categoryId: any) => Promise<void>; // Add fetchCategoryById
 }
-
-const api = axios.create({
-  baseURL: "http://192.168.31.240:3000",
-});
 
 const useProductStore = create<StoreState>((set) => ({
   categories: [],
   productsByCategory: [],
+  selectedCategory: null, // Initialize selectedCategory
   storeLoading: false,
 
   // Set Categories
@@ -40,6 +41,9 @@ const useProductStore = create<StoreState>((set) => ({
 
   // Set Products
   setProductsByCategory: (productsByCategory) => set({ productsByCategory }),
+
+  // Set Selected Category
+  setSelectedCategory: (selectedCategory) => set({ selectedCategory }),
 
   // Fetch Categories
   fetchCategories: async (queryParams = {}) => {
@@ -64,6 +68,18 @@ const useProductStore = create<StoreState>((set) => ({
       set({ productsByCategory: response.data, storeLoading: false });
     } catch (error) {
       console.error("Failed to fetch products:", error);
+      set({ storeLoading: false });
+    }
+  },
+
+  // Fetch Category by ID
+  fetchCategoryById: async (id: number) => {
+    set({ storeLoading: true });
+    try {
+      const response = await api.get(`/categories/${id}`);
+      set({ selectedCategory: response.data, storeLoading: false });
+    } catch (error) {
+      console.error("Failed to fetch category:", error);
       set({ storeLoading: false });
     }
   },

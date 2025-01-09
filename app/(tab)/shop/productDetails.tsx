@@ -13,9 +13,10 @@ import {
   useColorScheme,
   Platform,
   StatusBar,
+  SafeAreaView,
 } from "react-native";
 import axios from "axios";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCartStore } from "@/store/cartStore";
 import CustomRenderHtml from "@/components/organisms/CustomRenderHtml"; // Import the custom wrapper
 import { useTheme } from "@/context/ThemeContext"; // Import the useTheme hook
@@ -50,7 +51,9 @@ interface Product {
 
 const ProductPage: React.FC = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const {showToast}=useToast()
+  const { showToast } = useToast();
+
+  const router = useRouter();
   const [product, setProduct] = useState<Product | null>(null);
   const [variations, setVariations] = useState<Variation[]>([]);
   const [selectedAttributes, setSelectedAttributes] = useState<{
@@ -62,7 +65,7 @@ const ProductPage: React.FC = () => {
   const [availableOptions, setAvailableOptions] = useState<{
     [key: string]: string[];
   }>({});
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [quantity, setQuantity] = useState(1);
 
   // Zustand store for cart
@@ -73,6 +76,7 @@ const ProductPage: React.FC = () => {
 
   // Fetch product and variations from the backend
   useEffect(() => {
+    setLoading(true)
     axios
       .get<{ product: Product; variations: Variation[] }>(
         `http://192.168.31.240:3000/products/${id}`
@@ -145,10 +149,13 @@ const ProductPage: React.FC = () => {
     }
   }, [selectedAttributes, variations, product]);
 
+  const navigateToBag = () => {
+    router.push(`/bag`);
+  };
+
   // Handle Add to Cart
   const handleAddToCart = () => {
     if (!product) return;
-
     const item = {
       product_id: product.id,
       variation_id: selectedVariantId || undefined,
@@ -158,8 +165,13 @@ const ProductPage: React.FC = () => {
       attributes:
         variations.find((v) => v.id === selectedVariantId)?.attributes || [],
     };
-    addToCart(item);
-    showToast("Prodct Added to Bag,Check Your Bag",'success',2000);
+    if (!isSelectedVariantInCart) {
+      addToCart(item); // Add the item to the cart
+      showToast("Product Added to Bag, Check Your Bag", "success", 2000); // Show toast message
+    }
+    if(isSelectedVariantInCart){
+      navigateToBag()
+    }
   };
 
   // Check if the selected variant is in the cart
@@ -191,257 +203,292 @@ const ProductPage: React.FC = () => {
 
   // Get screen width using Dimensions API
   const { width } = Dimensions.get("window");
-
+console.log(loading,'loading')
   return (
-    <ScrollView
-      contentContainerStyle={[
-        styles.container,
+    <SafeAreaView
+      style={[
+        {flex:1},
         { backgroundColor: theme.background },
-        { paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0 },
+        {
+          paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+        },
       ]}
     >
-      {/* Product Images */}
-      {product.images && product.images.length > 0 && (
-        <ImageCarousel images={product.images} />
-      )}
+      <ScrollView
+        contentContainerStyle={[
+          styles.container,
+          { backgroundColor: theme.background },
+          {
+            paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+          },
+        ]}
+      >
+        {/* Product Images */}
+        {product.images && product.images.length > 0 && (
+          <ImageCarousel images={product.images} />
+        )}
 
-      {/* Product Name */}
-      <Text style={[styles.productName, { color: theme.text }]}>
-        {product.name}
-      </Text>
+        {/* Product Name */}
+        <Text style={[styles.productName, { color: theme.text }]}>
+          {product.name}
+        </Text>
 
-      {/* Product Price */}
-      <Text style={[styles.productPrice, { color: theme.primary }]}>
-        ${product.price}
-      </Text>
+        {/* Product Price */}
+        <Text style={[styles.productPrice, { color: theme.primary }]}>
+          ${product.price}
+        </Text>
 
-      {/* Product Attributes */}
-      {/* {product.attributes && product.attributes.length > 0 && (
+        {/* Product Attributes */}
+        {/* {product.attributes && product.attributes.length > 0 && (
         <Text style={[styles.sectionTitle, { color: theme.text }]}>
           Attributes:
         </Text>
       )} */}
-      {product?.attributes?.map(
-        (attribute) =>
-          attribute.variation && (
-            <View key={attribute.id} style={styles.attributeContainer}>
-              <Text style={[styles.attributeName, { color: theme.text }]}>
-                {attribute.name}
-              </Text>
-              <View style={styles.optionsContainer}>
-                {attribute.options?.map((option) => {
-                  const isOptionAvailable =
-                    availableOptions[attribute.name]?.includes(option);
-                  return (
-                    <TouchableOpacity
-                      key={option}
-                      onPress={() =>
-                        handleAttributeChange(attribute.name, option)
-                      }
-                      style={[
-                        styles.optionButton,
-                        {
-                          backgroundColor: theme.secondaryBackground,
-                          // borderColor: theme.text,
-                          borderWidth: 2,
-                          borderColor: theme.text,
-                        },
-                        selectedAttributes[attribute.name] === option && {
-                          backgroundColor: theme.primary,
-                          borderWidth: 2,
-                          borderColor: theme.text,
-                        },
-                        !isOptionAvailable && {
-                          opacity: 0.1,
-                          backgroundColor: theme.secondaryBackground,
-                          // borderColor: theme.text,
-                        },
-                      ]}
-                      disabled={!isOptionAvailable}
-                    >
-                      <Text
+        {product?.attributes?.map(
+          (attribute) =>
+            attribute.variation && (
+              <View key={attribute.id} style={styles.attributeContainer}>
+                <Text style={[styles.attributeName, { color: theme.text }]}>
+                  {attribute.name}
+                </Text>
+                <View style={styles.optionsContainer}>
+                  {attribute.options?.map((option) => {
+                    const isOptionAvailable =
+                      availableOptions[attribute.name]?.includes(option);
+                    return (
+                      <TouchableOpacity
+                        key={option}
+                        onPress={() =>
+                          handleAttributeChange(attribute.name, option)
+                        }
                         style={[
-                          styles.optionText,
-                          { color: theme.text },
+                          styles.optionButton,
+                          {
+                            backgroundColor: theme.secondaryBackground,
+                            // borderColor: theme.text,
+                            borderWidth: 2,
+                            borderColor: theme.text,
+                          },
+                          selectedAttributes[attribute.name] === option && {
+                            backgroundColor: theme.primary,
+                            borderWidth: 2,
+                            borderColor: theme.text,
+                          },
                           !isOptionAvailable && {
-                            color: theme.lightText,
+                            opacity: 0.1,
+                            backgroundColor: theme.secondaryBackground,
+                            // borderColor: theme.text,
                           },
                         ]}
+                        disabled={!isOptionAvailable}
                       >
-                        {option}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
+                        <Text
+                          style={[
+                            styles.optionText,
+                            { color: theme.text },
+                            !isOptionAvailable && {
+                              color: theme.lightText,
+                            },
+                          ]}
+                        >
+                          {option}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
               </View>
-            </View>
-          )
-      )}
+            )
+        )}
 
-      {/* Selected Variant ID */}
-      {/* <Text style={[styles.selectedVariant, { color: theme.text }]}>
+        {/* Selected Variant ID */}
+        {/* <Text style={[styles.selectedVariant, { color: theme.text }]}>
         Selected Variant ID: {selectedVariantId || "No variant selected"}
       </Text> */}
 
-      {/* Quantity Selector */}
-      {!isSelectedVariantInCart && (
-        <View style={styles.quantityContainer}>
-          <TouchableOpacity
-            onPress={() => setQuantity((prev) => (prev > 1 ? prev - 1 : 1))}
-            style={[styles.quantityButton, { backgroundColor: theme.primary }]}
-          >
-            <Text
-              style={[styles.quantityButtonText, { color: theme.buttonText }]}
-            >
-              -
-            </Text>
-          </TouchableOpacity>
-          <Text style={[styles.quantityText, { color: theme.text }]}>
-            {quantity}
-          </Text>
-          <TouchableOpacity
-            onPress={() => setQuantity((prev) => prev + 1)}
-            style={[styles.quantityButton, { backgroundColor: theme.primary }]}
-          >
-            <Text
-              style={[styles.quantityButtonText, { color: theme.buttonText }]}
-            >
-              +
-            </Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      {/* Add to Cart Button */}
-      <TouchableOpacity
-        onPress={handleAddToCart}
-        style={[styles.addToCartButton, { backgroundColor: theme.primary }]}
-      >
-        <Text style={[styles.addToCartText, { color: theme.buttonText }]}>
-          {isSelectedVariantInCart ? "In Your Bag" : "ADD TO CART"}
-        </Text>
-      </TouchableOpacity>
-
-      {/* Product Categories */}
-      {product.categories && product.categories.length > 0 && (
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>
-            Categories
-          </Text>
-          <View style={styles.categoriesContainer}>
-            {product.categories.map((category) => (
-              <Text
-                key={category.id}
+        {/* Quantity Selector and Add to Cart Button */}
+        <View style={styles.addToCartContainer}>
+          {/* Quantity Selector */}
+          {!isSelectedVariantInCart && (
+            <View style={styles.quantityContainer}>
+              <TouchableOpacity
+                onPress={() => setQuantity((prev) => (prev > 1 ? prev - 1 : 1))}
                 style={[
-                  styles.category,
-                  {
-                    backgroundColor: theme.secondaryBackground,
-                    color: theme.text,
-                  },
+                  styles.quantityButton,
+                  { backgroundColor: theme.primary },
                 ]}
               >
-                {category.name}
+                <Text
+                  style={[
+                    styles.quantityButtonText,
+                    { color: theme.buttonText },
+                  ]}
+                >
+                  -
+                </Text>
+              </TouchableOpacity>
+              <Text style={[styles.quantityText, { color: theme.text }]}>
+                {quantity}
               </Text>
-            ))}
-          </View>
-        </View>
-      )}
-
-      {/* Product Tags */}
-      {product.tags && product.tags.length > 0 && (
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>Tags</Text>
-          <View style={styles.tagsContainer}>
-            {product.tags.map((tag) => (
-              <Text
-                key={tag.id}
+              <TouchableOpacity
+                onPress={() => setQuantity((prev) => prev + 1)}
                 style={[
-                  styles.tag,
-                  {
-                    backgroundColor: theme.secondaryBackground,
-                    color: theme.text,
-                  },
+                  styles.quantityButton,
+                  { backgroundColor: theme.primary },
                 ]}
               >
-                {tag.name}
-              </Text>
-            ))}
+                <Text
+                  style={[
+                    styles.quantityButtonText,
+                    { color: theme.buttonText },
+                  ]}
+                >
+                  +
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {/* Add to Cart Button */}
+          <TouchableOpacity
+            onPress={handleAddToCart}
+            style={[
+              styles.addToCartButton,
+              {
+                backgroundColor: theme.primary,
+                width: isSelectedVariantInCart ? "100%" : "auto", // Take full width if product is in cart
+              },
+            ]}
+          >
+            <Text style={[styles.addToCartText, { color: theme.buttonText }]}>
+              {isSelectedVariantInCart ? "In Your Bag" : "ADD TO CART"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Product Categories */}
+        {product.categories && product.categories.length > 0 && (
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>
+              Categories
+            </Text>
+            <View style={styles.categoriesContainer}>
+              {product.categories.map((category) => (
+                <Text
+                  key={category.id}
+                  style={[
+                    styles.category,
+                    {
+                      backgroundColor: theme.secondaryBackground,
+                      color: theme.text,
+                    },
+                  ]}
+                >
+                  {category.name}
+                </Text>
+              ))}
+            </View>
           </View>
-        </View>
-      )}
+        )}
 
-      {/* Product Description */}
-      {product.description && (
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>
-            Description
-          </Text>
-          <CustomRenderHtml
-            contentWidth={width}
-            source={{ html: product.description }}
-            baseStyle={{
-              color: theme.text,
-              fontSize: 16,
-              lineHeight: 24,
-            }}
-            tagsStyles={{
-              p: { color: theme.text, fontSize: 16, lineHeight: 24 },
-              h1: { color: theme.text, fontSize: 24, fontWeight: "bold" },
-              h2: { color: theme.text, fontSize: 22, fontWeight: "bold" },
-              h3: { color: theme.text, fontSize: 20, fontWeight: "bold" },
-              h4: { color: theme.text, fontSize: 18, fontWeight: "bold" },
-              h5: { color: theme.text, fontSize: 16, fontWeight: "bold" },
-              h6: { color: theme.text, fontSize: 14, fontWeight: "bold" },
-              span: { color: theme.text },
-              strong: { color: theme.text, fontWeight: "bold" },
-              em: { color: theme.text, fontStyle: "italic" },
-              a: { color: theme.primary, textDecorationLine: "underline" },
-              li: { color: theme.text },
-              ul: { color: theme.text },
-              ol: { color: theme.text },
-              blockquote: { color: theme.text, fontStyle: "italic" },
-            }}
-            enableCSSInlineProcessing={true}
-          />
-        </View>
-      )}
+        {/* Product Tags */}
+        {product.tags && product.tags.length > 0 && (
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>
+              Tags
+            </Text>
+            <View style={styles.tagsContainer}>
+              {product.tags.map((tag) => (
+                <Text
+                  key={tag.id}
+                  style={[
+                    styles.tag,
+                    {
+                      backgroundColor: theme.secondaryBackground,
+                      color: theme.text,
+                    },
+                  ]}
+                >
+                  {tag.name}
+                </Text>
+              ))}
+            </View>
+          </View>
+        )}
 
-      {/* Product Short Description */}
-      {product.short_description && (
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>
-            Overview
-          </Text>
-          <CustomRenderHtml
-            contentWidth={width}
-            source={{ html: product.short_description }}
-            baseStyle={{
-              color: theme.text,
-              fontSize: 16,
-              lineHeight: 24,
-            }}
-            tagsStyles={{
-              p: { color: theme.text, fontSize: 16, lineHeight: 24 },
-              h1: { color: theme.text, fontSize: 24, fontWeight: "bold" },
-              h2: { color: theme.text, fontSize: 22, fontWeight: "bold" },
-              h3: { color: theme.text, fontSize: 20, fontWeight: "bold" },
-              h4: { color: theme.text, fontSize: 18, fontWeight: "bold" },
-              h5: { color: theme.text, fontSize: 16, fontWeight: "bold" },
-              h6: { color: theme.text, fontSize: 14, fontWeight: "bold" },
-              span: { color: theme.text },
-              strong: { color: theme.text, fontWeight: "bold" },
-              em: { color: theme.text, fontStyle: "italic" },
-              a: { color: theme.primary, textDecorationLine: "underline" },
-              li: { color: theme.text },
-              ul: { color: theme.text },
-              ol: { color: theme.text },
-              blockquote: { color: theme.text, fontStyle: "italic" },
-            }}
-            enableCSSInlineProcessing={true}
-          />
-        </View>
-      )}
-    </ScrollView>
+        {/* Product Description */}
+        {product.description && (
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>
+              Description
+            </Text>
+            <CustomRenderHtml
+              contentWidth={width}
+              source={{ html: product.description }}
+              baseStyle={{
+                color: theme.text,
+                fontSize: 16,
+                lineHeight: 24,
+              }}
+              tagsStyles={{
+                p: { color: theme.text, fontSize: 16, lineHeight: 24 },
+                h1: { color: theme.text, fontSize: 24, fontWeight: "bold" },
+                h2: { color: theme.text, fontSize: 22, fontWeight: "bold" },
+                h3: { color: theme.text, fontSize: 20, fontWeight: "bold" },
+                h4: { color: theme.text, fontSize: 18, fontWeight: "bold" },
+                h5: { color: theme.text, fontSize: 16, fontWeight: "bold" },
+                h6: { color: theme.text, fontSize: 14, fontWeight: "bold" },
+                span: { color: theme.text },
+                strong: { color: theme.text, fontWeight: "bold" },
+                em: { color: theme.text, fontStyle: "italic" },
+                a: { color: theme.primary, textDecorationLine: "underline" },
+                li: { color: theme.text },
+                ul: { color: theme.text },
+                ol: { color: theme.text },
+                blockquote: { color: theme.text, fontStyle: "italic" },
+              }}
+              enableCSSInlineProcessing={true}
+            />
+          </View>
+        )}
+
+        {/* Product Short Description */}
+        {product.short_description && (
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>
+              Overview
+            </Text>
+            <CustomRenderHtml
+              contentWidth={width}
+              source={{ html: product.short_description }}
+              baseStyle={{
+                color: theme.text,
+                fontSize: 16,
+                lineHeight: 24,
+              }}
+              tagsStyles={{
+                p: { color: theme.text, fontSize: 16, lineHeight: 24 },
+                h1: { color: theme.text, fontSize: 24, fontWeight: "bold" },
+                h2: { color: theme.text, fontSize: 22, fontWeight: "bold" },
+                h3: { color: theme.text, fontSize: 20, fontWeight: "bold" },
+                h4: { color: theme.text, fontSize: 18, fontWeight: "bold" },
+                h5: { color: theme.text, fontSize: 16, fontWeight: "bold" },
+                h6: { color: theme.text, fontSize: 14, fontWeight: "bold" },
+                span: { color: theme.text },
+                strong: { color: theme.text, fontWeight: "bold" },
+                em: { color: theme.text, fontStyle: "italic" },
+                a: { color: theme.primary, textDecorationLine: "underline" },
+                li: { color: theme.text },
+                ul: { color: theme.text },
+                ol: { color: theme.text },
+                blockquote: { color: theme.text, fontStyle: "italic" },
+              }}
+              enableCSSInlineProcessing={true}
+            />
+          </View>
+        )}
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
@@ -454,25 +501,20 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  productImage: {
-    width: "100%",
-    height: 300,
-    borderRadius: 8,
-    marginBottom: 20,
-  },
   productName: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 10,
+    marginTop: 10,
   },
   productPrice: {
     fontSize: 22,
     fontWeight: "bold",
-    marginBottom: 20,
+    // marginBottom: 20,
   },
   section: {
     // marginBottom: 20,
-    marginTop:20
+    marginTop: 20,
   },
   sectionTitle: {
     fontSize: 20,
@@ -520,7 +562,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     borderRadius: 25,
     marginRight: 10,
-    marginBottom: 10,
+    marginBottom: 5,
   },
   optionText: {
     fontSize: 12,
@@ -530,32 +572,50 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontWeight: "bold",
   },
-  quantityContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 20,
+  addToCartContainer: {
+    flexDirection: "row", // Display children in a row
+    alignItems: "center", // Align items vertically
+    width: "100%", // Ensure the container takes full width
   },
+
   quantityButton: {
-    padding: 10,
-    borderRadius: 5,
+    width: 40, // Set a fixed width for the button
+    height: 40, // Set a fixed height for the button
+    borderRadius: 20, // Half of the width/height to make it circular
+    justifyContent: "center", // Center the text vertically
+    alignItems: "center", // Center the text horizontally
   },
+
+  // Quantity Button Text
   quantityButtonText: {
     fontSize: 20,
   },
+
+  // Quantity Text (number)
   quantityText: {
     fontSize: 18,
     marginHorizontal: 20,
   },
+
+  // Quantity Selector Container
+  quantityContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginRight: 10, // Add some spacing between quantity selector and Add to Cart button
+  },
+
+  // Add to Cart Button
   addToCartButton: {
     padding: 15,
     borderRadius: 25,
     alignItems: "center",
-    marginTop: 20,
+    flex: 1, // Take remaining space
   },
+
+  // Add to Cart Button Text
   addToCartText: {
     fontSize: 16,
-    fontWeight:700
+    fontWeight: "700",
   },
 });
 
