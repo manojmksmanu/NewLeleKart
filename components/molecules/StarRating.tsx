@@ -9,14 +9,14 @@ export default function StarRating({ rating }: any) {
   const stars = [];
   for (let i = 1; i <= 5; i++) {
     if (i <= rating) {
-      stars.push(<FontAwesome key={i} name="star" size={20} color="#FFBA49" />);
+      stars.push(<FontAwesome key={i} name="star" size={18} color="#FFBA49" />);
     } else if (i - 0.5 === rating) {
       stars.push(
-        <FontAwesome key={i} name="star-half-full" size={20} color="#FFBA49" />
+        <FontAwesome key={i} name="star-half-full" size={18} color="#FFBA49" />
       );
     } else {
       stars.push(
-        <FontAwesome key={i} name="star-o" size={20} color={theme.lightText} />
+        <FontAwesome key={i} name="star-o" size={18} color={theme.lightText} />
       );
     }
   }

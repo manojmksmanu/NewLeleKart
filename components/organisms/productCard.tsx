@@ -63,12 +63,6 @@ const ProductCard = ({ item }: any) => {
     router.push(`/(tab)/shop/productDetails?id=${id}`);
   };
 
-  if(item){
-    if(item?.images?.length===0){
-      return <></>
-    }
-  }
-
   return (
     <TouchableOpacity
       onPress={() => navigateToCategory(item.id)}
@@ -102,7 +96,7 @@ const ProductCard = ({ item }: any) => {
         resizeMode="cover"
       />
       <View style={styles.productInfo}>
-        {item?.rating_count && <StarRating rating={item?.rating_count} />}
+        {item?.rating_count && <StarRating rating={parseInt(item?.average_rating)} />}
         <Subheads text={item?.name} />
         <View style={styles.priceContainer}>
           <NormalText2 text={`₹${item?.price}`} />
