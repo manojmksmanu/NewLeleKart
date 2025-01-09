@@ -20,6 +20,7 @@ import { useCartStore } from "@/store/cartStore";
 import CustomRenderHtml from "@/components/organisms/CustomRenderHtml"; // Import the custom wrapper
 import { useTheme } from "@/context/ThemeContext"; // Import the useTheme hook
 import ImageCarousel from "@/components/molecules/ImageCarouselProductDetails";
+import { useToast } from "@/context/ToastContainer";
 
 // Define types for the product and variations
 interface Attribute {
@@ -49,6 +50,7 @@ interface Product {
 
 const ProductPage: React.FC = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const {showToast}=useToast()
   const [product, setProduct] = useState<Product | null>(null);
   const [variations, setVariations] = useState<Variation[]>([]);
   const [selectedAttributes, setSelectedAttributes] = useState<{
@@ -157,7 +159,7 @@ const ProductPage: React.FC = () => {
         variations.find((v) => v.id === selectedVariantId)?.attributes || [],
     };
     addToCart(item);
-    Alert.alert("Added to Cart", "The product has been added to your cart.");
+    showToast("Prodct Added to Bag,Check Your Bag",'success',2000);
   };
 
   // Check if the selected variant is in the cart
@@ -214,9 +216,11 @@ const ProductPage: React.FC = () => {
       </Text>
 
       {/* Product Attributes */}
-      <Text style={[styles.sectionTitle, { color: theme.text }]}>
-        Attributes:
-      </Text>
+      {/* {product.attributes && product.attributes.length > 0 && (
+        <Text style={[styles.sectionTitle, { color: theme.text }]}>
+          Attributes:
+        </Text>
+      )} */}
       {product?.attributes?.map(
         (attribute) =>
           attribute.variation && (
@@ -238,15 +242,19 @@ const ProductPage: React.FC = () => {
                         styles.optionButton,
                         {
                           backgroundColor: theme.secondaryBackground,
+                          // borderColor: theme.text,
+                          borderWidth: 2,
                           borderColor: theme.text,
                         },
                         selectedAttributes[attribute.name] === option && {
                           backgroundColor: theme.primary,
+                          borderWidth: 2,
+                          borderColor: theme.text,
                         },
                         !isOptionAvailable && {
-                          opacity: 0.2,
+                          opacity: 0.1,
                           backgroundColor: theme.secondaryBackground,
-                          borderColor: theme.lightText,
+                          // borderColor: theme.text,
                         },
                       ]}
                       disabled={!isOptionAvailable}
@@ -271,36 +279,38 @@ const ProductPage: React.FC = () => {
       )}
 
       {/* Selected Variant ID */}
-      <Text style={[styles.selectedVariant, { color: theme.text }]}>
+      {/* <Text style={[styles.selectedVariant, { color: theme.text }]}>
         Selected Variant ID: {selectedVariantId || "No variant selected"}
-      </Text>
+      </Text> */}
 
       {/* Quantity Selector */}
-      <View style={styles.quantityContainer}>
-        <TouchableOpacity
-          onPress={() => setQuantity((prev) => (prev > 1 ? prev - 1 : 1))}
-          style={[styles.quantityButton, { backgroundColor: theme.primary }]}
-        >
-          <Text
-            style={[styles.quantityButtonText, { color: theme.buttonText }]}
+      {!isSelectedVariantInCart && (
+        <View style={styles.quantityContainer}>
+          <TouchableOpacity
+            onPress={() => setQuantity((prev) => (prev > 1 ? prev - 1 : 1))}
+            style={[styles.quantityButton, { backgroundColor: theme.primary }]}
           >
-            -
+            <Text
+              style={[styles.quantityButtonText, { color: theme.buttonText }]}
+            >
+              -
+            </Text>
+          </TouchableOpacity>
+          <Text style={[styles.quantityText, { color: theme.text }]}>
+            {quantity}
           </Text>
-        </TouchableOpacity>
-        <Text style={[styles.quantityText, { color: theme.text }]}>
-          {quantity}
-        </Text>
-        <TouchableOpacity
-          onPress={() => setQuantity((prev) => prev + 1)}
-          style={[styles.quantityButton, { backgroundColor: theme.primary }]}
-        >
-          <Text
-            style={[styles.quantityButtonText, { color: theme.buttonText }]}
+          <TouchableOpacity
+            onPress={() => setQuantity((prev) => prev + 1)}
+            style={[styles.quantityButton, { backgroundColor: theme.primary }]}
           >
-            +
-          </Text>
-        </TouchableOpacity>
-      </View>
+            <Text
+              style={[styles.quantityButtonText, { color: theme.buttonText }]}
+            >
+              +
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* Add to Cart Button */}
       <TouchableOpacity
@@ -308,7 +318,7 @@ const ProductPage: React.FC = () => {
         style={[styles.addToCartButton, { backgroundColor: theme.primary }]}
       >
         <Text style={[styles.addToCartText, { color: theme.buttonText }]}>
-          {isSelectedVariantInCart ? "In Your Bag" : "Add to Cart"}
+          {isSelectedVariantInCart ? "In Your Bag" : "ADD TO CART"}
         </Text>
       </TouchableOpacity>
 
@@ -461,7 +471,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   section: {
-    marginBottom: 20,
+    // marginBottom: 20,
+    marginTop:20
   },
   sectionTitle: {
     fontSize: 20,
@@ -471,7 +482,7 @@ const styles = StyleSheet.create({
   categoriesContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    width:"100%"
+    width: "100%",
   },
   category: {
     paddingVertical: 6,
@@ -505,15 +516,14 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
   },
   optionButton: {
-    borderWidth: 1,
     paddingVertical: 10,
     paddingHorizontal: 15,
-    borderRadius: 5,
+    borderRadius: 25,
     marginRight: 10,
     marginBottom: 10,
   },
   optionText: {
-    fontSize: 16,
+    fontSize: 12,
   },
   selectedVariant: {
     fontSize: 18,
@@ -538,13 +548,14 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
   addToCartButton: {
-    padding: 10,
-    borderRadius: 5,
+    padding: 15,
+    borderRadius: 25,
     alignItems: "center",
     marginTop: 20,
   },
   addToCartText: {
     fontSize: 16,
+    fontWeight:700
   },
 });
 
