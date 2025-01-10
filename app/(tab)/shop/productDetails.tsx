@@ -6,21 +6,20 @@ import {
   ScrollView,
   ActivityIndicator,
   TouchableOpacity,
-  Image,
   Dimensions,
-  Platform,
-  StatusBar,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context"; // Import SafeAreaView
+import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useCartStore } from "@/store/cartStore";
+import { useCartStore } from "@/store/cartStore"; // Import Zustand cart store
 import CustomRenderHtml from "@/components/organisms/CustomRenderHtml";
 import { useTheme } from "@/context/ThemeContext";
 import ImageCarousel from "@/components/molecules/ImageCarouselProductDetails";
 import { useToast } from "@/context/ToastContainer";
 import { Ionicons } from "@expo/vector-icons";
 import { CircularLoader } from "@/components/molecules/loaders/CircularLoadert";
+import { tokens } from "react-native-paper/lib/typescript/styles/themes/v3/tokens";
+import { useAuthStore } from "@/store/authStore";
 
 // Define types for the product and variations
 interface Attribute {
@@ -57,18 +56,18 @@ const ProductPage: React.FC = () => {
   const [selectedAttributes, setSelectedAttributes] = useState<{
     [key: string]: string;
   }>({});
+  const [loading, setLoading] = useState(false);
   const [selectedVariantId, setSelectedVariantId] = useState<number | null>(
     null
   );
   const [availableOptions, setAvailableOptions] = useState<{
     [key: string]: string[];
   }>({});
-  const [loading, setLoading] = useState(false);
   const [quantity, setQuantity] = useState(1);
 
   // Zustand store for cart
-  const { addToCart, isInCart } = useCartStore();
-
+  const { addToCart, isInCart, loading: cartLoading } = useCartStore(); // Use loading state
+  const { token } = useAuthStore();
   // Use the theme
   const theme = useTheme();
 
@@ -152,30 +151,37 @@ const ProductPage: React.FC = () => {
   };
 
   // Handle Add to Cart
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!product) return;
+    // console.log(product)
     const item = {
       product_id: product.id,
-      variation_id: selectedVariantId || undefined,
       quantity: quantity,
       image: product.images[0]?.src || "",
       name: product.name,
-      attributes:
-        variations.find((v) => v.id === selectedVariantId)?.attributes || [],
+      price: parseFloat(product.price),
+      item_key: selectedVariantId
+        ? `variant_${selectedVariantId}`
+        : `product_${product.id}`,
     };
+
+    // Check if the item is already in the cart
+    const isSelectedVariantInCart = isInCart(item.item_key);
+
     if (!isSelectedVariantInCart) {
-      addToCart(item); // Add the item to the cart
-      showToast("Product Added to Bag, Check Your Bag", "success", 2000); // Show toast message
-    }
-    if (isSelectedVariantInCart) {
-      navigateToBag();
+      console.log("hithis");
+      await addToCart(item,token,showToast); // Add the item to the cart
+      showToast("Product Added to Bag, Check Your Bag", "success", 2000); // Show success toast
+    } else {
+      navigateToBag(); // Navigate to the bag if the item is already in the cart
     }
   };
 
   // Check if the selected variant is in the cart
   const isSelectedVariantInCart = isInCart(
-    product?.id || 0,
-    selectedVariantId || undefined
+    selectedVariantId
+      ? `variant_${selectedVariantId}`
+      : `product_${product?.id}`
   );
 
   if (loading) {
@@ -202,15 +208,7 @@ const ProductPage: React.FC = () => {
   const { width } = Dimensions.get("window");
 
   return (
-    <SafeAreaView
-      style={[
-        { flex: 1 },
-        { backgroundColor: theme.background },
-        // {
-        //   paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-        // },
-      ]}
-    >
+    <SafeAreaView style={[{ flex: 1 }, { backgroundColor: theme.background }]}>
       {/* Back Button */}
       <TouchableOpacity
         onPress={() => router.back()}
@@ -287,7 +285,6 @@ const ProductPage: React.FC = () => {
                           selectedAttributes[attribute.name] === option && {
                             backgroundColor: theme.primary,
                             borderWidth: 2,
-                            // borderColor: theme.lightText,
                           },
                           !isOptionAvailable && {
                             opacity: 0.3,
@@ -299,12 +296,12 @@ const ProductPage: React.FC = () => {
                         <Text
                           style={[
                             styles.optionText,
-                            { color: theme.text }, // Default text color
+                            { color: theme.text },
                             selectedAttributes[attribute.name] === option && {
-                              color: theme.buttonText, // Text color for selected option
+                              color: theme.buttonText,
                             },
                             !isOptionAvailable && {
-                              color: theme.lightText, // Text color for unavailable options
+                              color: theme.lightText,
                             },
                           ]}
                         >
@@ -371,10 +368,15 @@ const ProductPage: React.FC = () => {
                 width: isSelectedVariantInCart ? "100%" : "auto",
               },
             ]}
+            disabled={cartLoading} // Disable button while loading
           >
-            <Text style={[styles.addToCartText, { color: theme.buttonText }]}>
-              {isSelectedVariantInCart ? "In Your Bag" : "ADD TO CART"}
-            </Text>
+            {cartLoading ? (
+              <ActivityIndicator color={theme.buttonText} /> // Show loader
+            ) : (
+              <Text style={[styles.addToCartText, { color: theme.buttonText }]}>
+                {isSelectedVariantInCart ? "In Your Bag" : "ADD TO CART"}
+              </Text>
+            )}
           </TouchableOpacity>
         </View>
 
@@ -573,12 +575,11 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     marginRight: 10,
     marginBottom: 5,
-    shadowColor: "#000", // Shadow color
-    shadowOffset: { width: 0, height: 1 }, // Shadow offset
-    shadowOpacity: 0.2, // Shadow opacity
-    shadowRadius: 2, // Shadow blur radius
-    // Shadow for Android
-    elevation: 2, // Elevation for Android
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
   },
   optionText: {
     fontSize: 12,

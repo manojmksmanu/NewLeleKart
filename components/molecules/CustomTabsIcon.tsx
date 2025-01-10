@@ -33,7 +33,20 @@ const CustomTabIcon: React.FC<CustomTabIconProps> = ({
   return (
     <View style={{ width: 50, display: "flex", alignItems: "center" }}>
       <Image source={icon} style={styles.icon} />
-      {/* {name === "Bag" ? <Text style={{position:'absolute',zIndex:100,backgroundColor:'white',borderRadius:"100%",}}>{getTotalItems()}</Text> : ""} */}
+      {/* {name === "Bag" ? (
+        <Text
+          style={{
+            position: "absolute",
+            zIndex: 100,
+            backgroundColor: "white",
+            borderRadius: "100%",
+          }}
+        >
+          {getTotalItems()}
+        </Text>
+      ) : (
+        <Text> dfsdf</Text>
+      )} */}
       <Text
         style={[
           styles.tabLabel,

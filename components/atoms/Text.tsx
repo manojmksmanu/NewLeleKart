@@ -17,7 +17,7 @@ export function Headline({ text }: HeadlineProps) {
 export function Headline2({ text }: HeadlineProps) {
   const theme = useTheme();
   return (
-      <Text style={{ fontSize: 24, fontWeight: 600, color: theme.text }}>
+      <Text style={{ fontSize: 24, fontWeight: 700, color: theme.text }}>
         {text}
       </Text>
   );

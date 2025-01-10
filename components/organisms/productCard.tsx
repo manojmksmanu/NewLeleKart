@@ -16,6 +16,8 @@ import { HelperText, NormalText, NormalText2, Subheads } from "../atoms/Text";
 import StarRating from "../molecules/StarRating";
 import { router } from "expo-router";
 const ProductCard = ({ item }: any) => {
+// console.log(item.images[0].src)
+
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [heartScale] = useState(new Animated.Value(0));
   const [heartOpacity] = useState(new Animated.Value(0));

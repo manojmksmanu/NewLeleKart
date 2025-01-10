@@ -15,6 +15,7 @@ import {
 import TabsHeader from "@/components/molecules/TabsHeader";
 import CustomHeader from "@/components/molecules/CustomHeader";
 import { SafeAreaView } from "react-native-safe-area-context"; // Import SafeAreaView
+import { CircularLoader } from "@/components/molecules/loaders/CircularLoadert";
 
 export default function ShopTab() {
   const router = useRouter();
@@ -33,10 +34,7 @@ export default function ShopTab() {
   if (storeLoading) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
-        <SkeletonLoading />
-        <SkeletonLoading />
-        <SkeletonLoading />
-        <SkeletonLoading />
+        <CircularLoader/>
       </SafeAreaView>
     );
   }

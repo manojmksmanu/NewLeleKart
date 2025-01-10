@@ -11,18 +11,18 @@ import {
 import { useCartStore } from "@/store/cartStore";
 
 const CartViewPage = () => {
-  const { cart, updateQuantity, removeFromCart, getSubtotal, getTotalItems } =
-    useCartStore();
+  // const { cart, updateQuantity, removeFromCart, getSubtotal, getTotalItems } =
+  //   useCartStore();
 
   const handleUpdateQuantity = (
     product_id: number,
     variation_id: number | undefined,
-    quantity: number
+    // quantity: number
   ) => {
     if (quantity < 1) {
-      removeFromCart(product_id, variation_id);
+      // removeFromCart(product_id, variation_id);
     } else {
-      updateQuantity(product_id, variation_id, quantity);
+      // updateQuantity(product_id, variation_id, quantity);
     }
   };
 
