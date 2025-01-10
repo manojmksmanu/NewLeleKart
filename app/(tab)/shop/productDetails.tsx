@@ -1,4 +1,3 @@
-// ProductPage.tsx
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -9,20 +8,19 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
-  Alert,
-  useColorScheme,
   Platform,
   StatusBar,
-  SafeAreaView,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context"; // Import SafeAreaView
 import axios from "axios";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCartStore } from "@/store/cartStore";
-import CustomRenderHtml from "@/components/organisms/CustomRenderHtml"; // Import the custom wrapper
-import { useTheme } from "@/context/ThemeContext"; // Import the useTheme hook
+import CustomRenderHtml from "@/components/organisms/CustomRenderHtml";
+import { useTheme } from "@/context/ThemeContext";
 import ImageCarousel from "@/components/molecules/ImageCarouselProductDetails";
 import { useToast } from "@/context/ToastContainer";
 import { Ionicons } from "@expo/vector-icons";
+import { CircularLoader } from "@/components/molecules/loaders/CircularLoadert";
 
 // Define types for the product and variations
 interface Attribute {
@@ -53,7 +51,6 @@ interface Product {
 const ProductPage: React.FC = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { showToast } = useToast();
-
   const router = useRouter();
   const [product, setProduct] = useState<Product | null>(null);
   const [variations, setVariations] = useState<Variation[]>([]);
@@ -183,38 +180,38 @@ const ProductPage: React.FC = () => {
 
   if (loading) {
     return (
-      <View
+      <SafeAreaView
         style={[styles.loadingContainer, { backgroundColor: theme.background }]}
       >
-        <ActivityIndicator size="large" color={theme.text} />
-        <Text style={{ color: theme.text }}>Loading...</Text>
-      </View>
+        <CircularLoader />
+      </SafeAreaView>
     );
   }
 
   if (!product) {
     return (
-      <View
+      <SafeAreaView
         style={[styles.loadingContainer, { backgroundColor: theme.background }]}
       >
         <Text style={{ color: theme.text }}>Product not found.</Text>
-      </View>
+      </SafeAreaView>
     );
   }
 
   // Get screen width using Dimensions API
   const { width } = Dimensions.get("window");
-  console.log(loading, "loading");
+
   return (
     <SafeAreaView
       style={[
         { flex: 1 },
         { backgroundColor: theme.background },
-        {
-          paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-        },
+        // {
+        //   paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+        // },
       ]}
     >
+      {/* Back Button */}
       <TouchableOpacity
         onPress={() => router.back()}
         style={{
@@ -229,7 +226,7 @@ const ProductPage: React.FC = () => {
           zIndex: 100,
           position: "absolute",
           left: 10,
-          top: 10,
+          top: 50,
         }}
       >
         <Ionicons
@@ -240,6 +237,7 @@ const ProductPage: React.FC = () => {
         />
       </TouchableOpacity>
 
+      {/* Scrollable Content */}
       <ScrollView
         contentContainerStyle={[
           styles.container,
@@ -262,11 +260,6 @@ const ProductPage: React.FC = () => {
         </Text>
 
         {/* Product Attributes */}
-        {/* {product.attributes && product.attributes.length > 0 && (
-        <Text style={[styles.sectionTitle, { color: theme.text }]}>
-          Attributes:
-        </Text>
-      )} */}
         {product?.attributes?.map(
           (attribute) =>
             attribute.variation && (
@@ -288,19 +281,17 @@ const ProductPage: React.FC = () => {
                           styles.optionButton,
                           {
                             backgroundColor: theme.secondaryBackground,
-                            // borderColor: theme.text,
                             borderWidth: 2,
-                            borderColor: theme.text,
+                            borderColor: theme.background,
                           },
                           selectedAttributes[attribute.name] === option && {
                             backgroundColor: theme.primary,
                             borderWidth: 2,
-                            borderColor: theme.text,
+                            // borderColor: theme.lightText,
                           },
                           !isOptionAvailable && {
-                            opacity: 0.1,
+                            opacity: 0.3,
                             backgroundColor: theme.secondaryBackground,
-                            // borderColor: theme.text,
                           },
                         ]}
                         disabled={!isOptionAvailable}
@@ -308,9 +299,12 @@ const ProductPage: React.FC = () => {
                         <Text
                           style={[
                             styles.optionText,
-                            { color: theme.text },
+                            { color: theme.text }, // Default text color
+                            selectedAttributes[attribute.name] === option && {
+                              color: theme.buttonText, // Text color for selected option
+                            },
                             !isOptionAvailable && {
-                              color: theme.lightText,
+                              color: theme.lightText, // Text color for unavailable options
                             },
                           ]}
                         >
@@ -323,11 +317,6 @@ const ProductPage: React.FC = () => {
               </View>
             )
         )}
-
-        {/* Selected Variant ID */}
-        {/* <Text style={[styles.selectedVariant, { color: theme.text }]}>
-        Selected Variant ID: {selectedVariantId || "No variant selected"}
-      </Text> */}
 
         {/* Quantity Selector and Add to Cart Button */}
         <View style={styles.addToCartContainer}>
@@ -379,7 +368,7 @@ const ProductPage: React.FC = () => {
               styles.addToCartButton,
               {
                 backgroundColor: theme.primary,
-                width: isSelectedVariantInCart ? "100%" : "auto", // Take full width if product is in cart
+                width: isSelectedVariantInCart ? "100%" : "auto",
               },
             ]}
           >
@@ -533,10 +522,8 @@ const styles = StyleSheet.create({
   productPrice: {
     fontSize: 22,
     fontWeight: "bold",
-    // marginBottom: 20,
   },
   section: {
-    // marginBottom: 20,
     marginTop: 20,
   },
   sectionTitle: {
@@ -586,56 +573,46 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     marginRight: 10,
     marginBottom: 5,
+    shadowColor: "#000", // Shadow color
+    shadowOffset: { width: 0, height: 1 }, // Shadow offset
+    shadowOpacity: 0.2, // Shadow opacity
+    shadowRadius: 2, // Shadow blur radius
+    // Shadow for Android
+    elevation: 2, // Elevation for Android
   },
   optionText: {
     fontSize: 12,
   },
-  selectedVariant: {
-    fontSize: 18,
-    marginTop: 20,
-    fontWeight: "bold",
-  },
   addToCartContainer: {
-    flexDirection: "row", // Display children in a row
-    alignItems: "center", // Align items vertically
-    width: "100%", // Ensure the container takes full width
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
   },
-
   quantityButton: {
-    width: 40, // Set a fixed width for the button
-    height: 40, // Set a fixed height for the button
-    borderRadius: 20, // Half of the width/height to make it circular
-    justifyContent: "center", // Center the text vertically
-    alignItems: "center", // Center the text horizontally
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
   },
-
-  // Quantity Button Text
   quantityButtonText: {
     fontSize: 20,
   },
-
-  // Quantity Text (number)
   quantityText: {
     fontSize: 18,
     marginHorizontal: 20,
   },
-
-  // Quantity Selector Container
   quantityContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginRight: 10, // Add some spacing between quantity selector and Add to Cart button
+    marginRight: 10,
   },
-
-  // Add to Cart Button
   addToCartButton: {
     padding: 15,
     borderRadius: 25,
     alignItems: "center",
-    flex: 1, // Take remaining space
+    flex: 1,
   },
-
-  // Add to Cart Button Text
   addToCartText: {
     fontSize: 16,
     fontWeight: "700",

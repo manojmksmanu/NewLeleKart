@@ -1,6 +1,6 @@
 import SkeletonLoading from "@/components/atoms/SkeletonLoading";
 import { useTheme } from "@/context/ThemeContext";
-import useProductStore from "@/store/productStore";
+import useProductStore from "@/store/categoryStore";
 import { useEffect } from "react";
 import { useRouter } from "expo-router";
 import { Category } from "@/types";

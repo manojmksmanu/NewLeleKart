@@ -7,18 +7,15 @@ import {
   Platform,
   StatusBar,
   ScrollView,
-  ActivityIndicator,
   TouchableOpacity,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import useProductStore from "@/store/productStore";
+import useProductStore from "@/store/categoryStore";
 import { useEffect, useState } from "react";
 import ProductCard from "@/components/organisms/productCard";
 import { fetchProducts, getSubcategories } from "@/api/productApi";
-import ContentLoader, { Rect } from "react-content-loader/native"; // Import Rect
 import { HeaderSkeleton } from "@/components/molecules/loaders/HeaderSkeleton";
 import { SubcategorySkeleton } from "@/components/molecules/loaders/SubcategorySkeleton";
-import SkeletonLoading from "@/components/atoms/SkeletonLoading";
 import { ProductSkeleton } from "@/components/molecules/loaders/ProductsSkeleton";
 
 export default function CategoryProduct() {
@@ -36,7 +33,6 @@ export default function CategoryProduct() {
     storeLoading,
     setSelectedCategory,
   } = useProductStore();
-console.log(loading,storeLoading)
   // Fetch subcategories
   const fetchSubcategories = async () => {
     const response = await getSubcategories(id);
@@ -71,7 +67,6 @@ console.log(loading,storeLoading)
     fetchProductsByCategory(selectedSubCategory);
   }, [selectedSubCategory]);
 
-
   return (
     <SafeAreaView
       style={{
@@ -99,7 +94,7 @@ console.log(loading,storeLoading)
         {/* Horizontal Subcategory Selector with Skeleton Loader */}
         <View style={{ height: 32, marginVertical: 10 }}>
           {storeLoading ? (
-            <SubcategorySkeleton/>
+            <SubcategorySkeleton />
           ) : (
             <ScrollView
               horizontal
@@ -162,9 +157,7 @@ console.log(loading,storeLoading)
         </View>
 
         {/* Loading Indicator */}
-        {(loading  || storeLoading) &&  (
-          <ProductSkeleton/>
-         )} 
+        {(loading || storeLoading) && <ProductSkeleton />}
 
         {/* No Products Found */}
         {!loading && !storeLoading && products.length === 0 && (

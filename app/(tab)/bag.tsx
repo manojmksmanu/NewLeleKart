@@ -38,6 +38,9 @@ const CartViewPage = () => {
       updateQuantity(product_id, variation_id, quantity);
     }
   };
+const navigateToCategory = (id: any) => {
+    router.push(`/shop/productDetails?id=${id}`);
+  };
 
   return (
     <View
@@ -65,7 +68,8 @@ const CartViewPage = () => {
               `${item.product_id}-${item.variation_id || "base"}`
             }
             renderItem={({ item }) => (
-              <View
+              <TouchableOpacity
+              onPress={()=>{navigateToCategory(item.product_id)}}
                 style={[
                   styles.cartItem,
                   { backgroundColor: theme.secondaryBackground },
@@ -182,7 +186,7 @@ const CartViewPage = () => {
                     </TouchableOpacity>
                   </View>
                 </View>
-              </View>
+              </TouchableOpacity>
             )}
           />
           <View

@@ -1,132 +1,138 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
-import { api } from "@/utils/config"; // Import the axios instance
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { api } from "@/utils/config";
 
-// Define the shape of the authentication state
 type AuthState = {
-  token: string | null; // JWT token
-  user: any | null; // User data
-  isLoading: boolean; // Loading state
-  error: string | null; // Error message
-  login: (
-    username: string,
-    password: string,
-    showToast: any,
-  ) => Promise<void>; // Login function with showToast
+  token: string | null;
+  user: any | null;
+  isLoading: boolean;
+  userLoading: boolean;
+  error: string | null;
+  login: (username: string, password: string, showToast: any) => Promise<void>;
   register: (
     username: string,
     password: string,
     email: string,
-    showToast: any,
-  ) => Promise<void>; // Register function with showToast
-  fetchUser: () => Promise<void>; // Fetch user data function
-  logout: () => void; // Logout function
+    showToast: any
+  ) => Promise<void>;
+  fetchUser: () => Promise<void>;
+  logout: () => void;
 };
 
-// Create the Zustand store with AsyncStorage persistence
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
-      token: null, // Initial token state
-      user: null, // Initial user state
-      isLoading: false, // Initial loading state
-      error: null, // Initial error state
+      token: null,
+      user: null,
+      isLoading: false,
+      userLoading: false,
+      error: null,
 
-      // Login function with showToast
+      // Login function
       login: async (username, password, showToast) => {
-        set({ isLoading: true, error: null }); // Set loading state
+        set({ isLoading: true, error: null });
         try {
           const response = await api.post("/auth/login", {
             username,
             password,
-          }); // Use axios
+          });
           const { token, user } = response.data;
+          console.log("Token after login:", token); // Debug log
+          console.log("User after login:", user); // Debug log
 
           if (token) {
-            set({ token, user, isLoading: false }); // Update state on success
-            showToast("Login successful", "success", 2000); // Show success toast
+            set({ token, user, isLoading: false });
+            showToast("Login successful", "success", 2000);
+
+            // Automatically fetch user data after login
+            await get().fetchUser();
           } else {
-            set({ error: "Login failed", isLoading: false }); // Update state on error
-            showToast("Login failed", "error", 2000); // Show error toast
+            set({ error: "Login failed", isLoading: false });
+            showToast("Login failed", "error", 2000);
           }
-        } catch (error:any) {
+        } catch (error: any) {
           set({
             error: error.response?.data?.message || "Login failed",
             isLoading: false,
-          }); // Handle errors
+          });
           showToast(
             error.response?.data?.message || "Login failed",
             "error",
             2000
-          ); // Show error toast
+          );
         }
       },
 
-      // Register function with showToast
+      // Register function
       register: async (username, password, email, showToast) => {
-        set({ isLoading: true, error: null }); // Set loading state
+        set({ isLoading: true, error: null });
         try {
           const response = await api.post("/auth/register", {
             username,
             password,
             email,
-          }); // Use axios
-          const { message } = response.data;
+          });
+          const { message, error } = response.data;
 
-          if (message) {
-            set({ isLoading: false }); // Update state on success
-            showToast("Registration successful", "success", 2000); // Show success toast
+          if (message && !error) {
+            set({ isLoading: false });
+            showToast(message, "success", 2000);
+          } else if (error) {
+            set({ error: error.message, isLoading: false });
+            showToast(error.message, "error", 2000);
           } else {
-            set({ error: "Registration failed", isLoading: false }); // Update state on error
-            showToast("Registration failed", "error", 2000); // Show error toast
+            set({ error: "Registration failed", isLoading: false });
+            showToast("Registration failed", "error", 2000);
           }
-        } catch (error:any) {
+        } catch (error: any) {
           set({
             error: error.response?.data?.message || "Registration failed",
             isLoading: false,
-          }); // Handle errors
+          });
           showToast(
             error.response?.data?.message || "Registration failed",
             "error",
             2000
-          ); // Show error toast
+          );
         }
       },
 
       // Fetch user data function
       fetchUser: async () => {
-        const { token } = get(); // Get the current token
-        if (!token) return; // Exit if no token
+        const { token } = get();
+        console.log("Token in fetchUser:", token); // Debug log
+        if (!token) return;
 
-        set({ isLoading: true, error: null }); // Set loading state
+        set({ userLoading: true, error: null });
         try {
           const response = await api.get("/auth/me", {
-            headers: { Authorization: `Bearer ${token}` }, // Use axios with token
+            headers: { Authorization: `Bearer ${token}` },
           });
-          const { user } = response.data;
+          const userData = response.data.customerData; // The data you provided
+          console.log("Fetched User Data:", userData); // Debug log
 
-          if (user) {
-            set({ user, isLoading: false }); // Update state on success
+          if (userData) {
+            set({ user: userData, userLoading: false });
           } else {
-            set({ error: "Failed to fetch user data", isLoading: false }); // Update state on error
+            set({ error: "Failed to fetch user data", userLoading: false });
           }
-        } catch (error:any) {
+        } catch (error: any) {
           set({
             error: error.response?.data?.message || "Failed to fetch user data",
-            isLoading: false,
-          }); // Handle errors
+            userLoading: false,
+          });
         }
       },
 
       // Logout function
       logout: () => {
-        set({ token: null, user: null }); // Clear token and user data
+        set({ token: null, user: null });
       },
     }),
     {
-      name: "auth-storage", // Local storage key
-      storage: createJSONStorage(() => AsyncStorage), // Use AsyncStorage for persistence
+      name: "auth-storage",
+      storage: createJSONStorage(() => AsyncStorage),
     }
   )
 );

@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
@@ -14,6 +13,8 @@ import CustomInput from "@/components/atoms/Input";
 import { Link } from "expo-router";
 import { ButtonPrimaryBig } from "@/components/atoms/Button";
 import { useTheme } from "@/context/ThemeContext";
+import { useAuthStore } from "@/store/authStore";
+import { CircularLoader } from "@/components/molecules/loaders/CircularLoadert";
 
 const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
 const phoneRegex = /^[0-9]{10}$/; // Regex for validating 10-digit phone numbers
@@ -27,6 +28,8 @@ const SignUp: React.FC = () => {
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const { register } = useAuthStore(); // Use Zustand store
+
 
   const handleSignUp = async () => {
     // Name validation (minimum 4 characters)
@@ -46,10 +49,10 @@ const SignUp: React.FC = () => {
     }
 
     // Phone number validation (must be 10 digits)
-    if (!phone || !phoneRegex.test(phone)) {
-      showToast("Phone number must be 10 digits", "info", 2000);
-      return;
-    }
+    // if (!phone || !phoneRegex.test(phone)) {
+    //   showToast("Phone number must be 10 digits", "info", 2000);
+    //   return;
+    // }
 
     // Password validation (minimum 8 characters)
     if (!password) {
@@ -67,16 +70,14 @@ const SignUp: React.FC = () => {
       return;
     }
 
-    // Proceed with the registration
-    // await registerUser(
-    //   email,
-    //   name,
-    //   phone,
-    //   password,
-    //   showToast,
-    //   setLoading,
-    //   navigation
-    // );
+    // Set loading state
+    setLoading(true);
+
+    // Call the register function from Zustand store
+    await register(name, password, email, showToast);
+
+    // Reset loading state
+    setLoading(false);
   };
 
   return (
@@ -95,11 +96,7 @@ const SignUp: React.FC = () => {
       >
         {/* Form Container */}
         {loading && (
-          <View style={{ display: "flex", flexDirection: "column", gap: 50 }}>
-            <Text style={{ textAlign: "center", paddingTop: -40 }}>
-              Sending Verification Code, Please Wait...
-            </Text>
-          </View>
+          <CircularLoader/>
         )}
         {!loading && (
           <View style={styles.formContainer}>
@@ -117,11 +114,11 @@ const SignUp: React.FC = () => {
                 setText={setEmail}
                 placeholder="Enter Email"
               />
-              <CustomInput
+              {/* <CustomInput
                 value={phone}
                 setText={setPhone}
                 placeholder="Enter Phone No"
-              />
+              /> */}
               <CustomInput
                 value={password}
                 setText={setPassword}
