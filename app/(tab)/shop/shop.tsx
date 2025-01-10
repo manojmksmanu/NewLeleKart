@@ -51,7 +51,7 @@ export default function ShopTab() {
       <CustomHeader title="All Categories" />
       <ScrollView
         style={[styles.container, { backgroundColor: theme.background }]}
-        contentContainerStyle={{ paddingBottom: 10 }} // Add padding at the bottom
+        contentContainerStyle={{ paddingBottom: 0 }} // Add padding at the bottom
       >
         <View style={styles.categoriesContainer}>
           {categories && categories.length > 0 ? (

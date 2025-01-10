@@ -36,7 +36,7 @@ export default function CategoryProduct() {
     storeLoading,
     setSelectedCategory,
   } = useProductStore();
-
+console.log(loading,storeLoading)
   // Fetch subcategories
   const fetchSubcategories = async () => {
     const response = await getSubcategories(id);
@@ -162,12 +162,12 @@ export default function CategoryProduct() {
         </View>
 
         {/* Loading Indicator */}
-        {/* {!loading  && ( */}
+        {(loading  || storeLoading) &&  (
           <ProductSkeleton/>
-        {/* )} */}
+         )} 
 
         {/* No Products Found */}
-        {/* {!loading && !storeLoading && products.length === 0 && (
+        {!loading && !storeLoading && products.length === 0 && (
           <View
             style={{
               flex: 1,
@@ -179,10 +179,10 @@ export default function CategoryProduct() {
               No products found.
             </Text>
           </View>
-        )} */}
+        )}
 
         {/* Product List */}
-        {/* {!loading && !storeLoading && products.length > 0 && (
+        {!loading && !storeLoading && products.length > 0 && (
           <ScrollView
             contentContainerStyle={{
               paddingBottom: 40,
@@ -210,7 +210,7 @@ export default function CategoryProduct() {
               })}
             </View>
           </ScrollView>
-        )} */}
+        )}
       </View>
     </SafeAreaView>
   );

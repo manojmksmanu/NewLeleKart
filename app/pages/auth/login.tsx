@@ -1,28 +1,23 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-  Button,
-} from "react-native";
-import { useNavigation, NavigationProp } from "@react-navigation/native";
-import { useToast } from "@/context/ToastContainer";
+import { View, Text, StyleSheet } from "react-native";
 import CustomInput from "@/components/atoms/Input";
 import { useTheme } from "@/context/ThemeContext";
 import { Link } from "expo-router";
 import { Headline, Subheads } from "@/components/atoms/Text";
 import { ButtonPrimaryBig } from "@/components/atoms/Button";
+import { useAuthStore } from "@/store/authStore"; // Import the Zustand store
+import { useToast } from "@/context/ToastContainer"; // Import the toast context
+import { CircularLoader } from "@/components/molecules/loaders/CircularLoadert";
 
 const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
 
 const Login: React.FC = () => {
-  const { showToast } = useToast();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const theme = useTheme();
+  const { login } = useAuthStore(); // Use Zustand store
+  const { showToast } = useToast(); // Use toast context
 
   const handleLogin = async () => {
     if (!email) {
@@ -35,24 +30,30 @@ const Login: React.FC = () => {
     }
     if (!password) {
       showToast("Please fill Password", "info", 2000);
-      return; // Exit the function if email is invalid
+      return; // Exit the function if password is invalid
     }
-    // await loginUser(email, password, showToast, setLoading, navigation);
+
+    setLoading(true); // Set loading state
+    await login(email, password, showToast); // Call the login function with showToast
+    setLoading(false); // Reset loading state
   };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       {/* Form Container */}
-      {/* {loading && <CustomLoading size={250} />} */}
-      {loading && <Text>Logging in, please wait... </Text>}
+      {loading && <CircularLoader/>}
       {!loading && (
         <View style={styles.formContainer}>
-          <View style={{marginVertical:45}}>
+          <View style={{ marginVertical: 45 }}>
             <Headline text="Login" />
           </View>
 
           <View style={styles.inputWrapper}>
-            <CustomInput value={email} setText={setEmail} placeholder="Email" />
+            <CustomInput
+              value={email}
+              setText={setEmail}
+              placeholder="Email"
+            />
             <CustomInput
               value={password}
               setText={setPassword}
@@ -75,18 +76,15 @@ const Login: React.FC = () => {
             </Link>
           </View>
 
-          <View style={{display:'flex',justifyContent:'center',alignItems:'center'}}>
+          <View
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
             <ButtonPrimaryBig text="Login" onPress={handleLogin} />
           </View>
-
-          {/* <Text style={styles.orText}>OR LOGIN WITH</Text> */}
-
-          {/* Google Signup Button */}
-          {/* <View style={styles.googleButtonContainer}>
-            <TouchableOpacity style={styles.googleButton}>
-             
-            </TouchableOpacity>
-          </View> */}
 
           <View style={styles.bottomTextContainer}>
             <Subheads text="Don't have an account?" />
