@@ -18,6 +18,8 @@ import { fetchProducts, getSubcategories } from "@/api/productApi";
 import ContentLoader, { Rect } from "react-content-loader/native"; // Import Rect
 import { HeaderSkeleton } from "@/components/molecules/loaders/HeaderSkeleton";
 import { SubcategorySkeleton } from "@/components/molecules/loaders/SubcategorySkeleton";
+import SkeletonLoading from "@/components/atoms/SkeletonLoading";
+import { ProductSkeleton } from "@/components/molecules/loaders/ProductsSkeleton";
 
 export default function CategoryProduct() {
   const { id } = useLocalSearchParams(); // Access query params
@@ -160,21 +162,12 @@ export default function CategoryProduct() {
         </View>
 
         {/* Loading Indicator */}
-        {(loading || storeLoading) && (
-          <View
-            style={{
-              flex: 1,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <ActivityIndicator size="large" color={theme.text} />
-            <Text style={{ color: theme.text, marginTop: 10 }}>Loading...</Text>
-          </View>
-        )}
+        {/* {!loading  && ( */}
+          <ProductSkeleton/>
+        {/* )} */}
 
         {/* No Products Found */}
-        {!loading && !storeLoading && products.length === 0 && (
+        {/* {!loading && !storeLoading && products.length === 0 && (
           <View
             style={{
               flex: 1,
@@ -186,10 +179,10 @@ export default function CategoryProduct() {
               No products found.
             </Text>
           </View>
-        )}
+        )} */}
 
         {/* Product List */}
-        {!loading && !storeLoading && products.length > 0 && (
+        {/* {!loading && !storeLoading && products.length > 0 && (
           <ScrollView
             contentContainerStyle={{
               paddingBottom: 40,
@@ -217,7 +210,7 @@ export default function CategoryProduct() {
               })}
             </View>
           </ScrollView>
-        )}
+        )} */}
       </View>
     </SafeAreaView>
   );
