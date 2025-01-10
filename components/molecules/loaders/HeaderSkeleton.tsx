@@ -1,43 +1,36 @@
 import { useTheme } from "@/context/ThemeContext";
-import { Feather, MaterialIcons } from "@expo/vector-icons";
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { useRouter } from "expo-router";
+import ContentLoader, { Rect } from "react-content-loader/native"; // Import Rect
 
-type CustomHeader = {
-  title: string;
-  extraFeature?: boolean; // Condition for additional features
-};
 
-const CustomHeader: React.FC<CustomHeader> = ({ title, extraFeature }) => {
-  const router = useRouter();
+export const HeaderSkeleton = () => {
   const theme = useTheme();
-  const navigationToSearch = () => {
-    router.push(`/(tab)/shop/search`);
-  };
-
   return (
     <View style={styles.shadowContainer}>
       {/* Shadow View */}
       <View style={styles.bottomShadow} />
-      {/* Header Content */}
+      {/* Skeleton Header Content */}
       <View style={[styles.header, { backgroundColor: theme.background }]}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <MaterialIcons
-            name="arrow-back-ios-new"
-            size={24}
-            color={theme.text}
-          />
-        </TouchableOpacity>
-        <Text style={[styles.title, { color: theme.text }]}>{title}</Text>
-        <TouchableOpacity onPress={navigationToSearch}>
-          <Feather name="search" size={24} color={theme.text} />
-        </TouchableOpacity>
+        <ContentLoader
+          speed={1}
+          width="100%"
+          height={60} // Adjust height to match the header
+          viewBox="0 0 400 60" // Adjust viewBox to match the header dimensions
+          backgroundColor={theme.secondaryBackground}
+          foregroundColor={theme.primary}
+        >
+          {/* Back Button Skeleton */}
+          <Rect x="20" y="18" rx="4" ry="4" width="24" height="24" />
+          {/* Title Skeleton */}
+          <Rect x="70" y="18" rx="4" ry="4" width="200" height="24" />
+          {/* Search Button Skeleton */}
+          <Rect x="350" y="18" rx="4" ry="4" width="24" height="24" />
+        </ContentLoader>
       </View>
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   shadowContainer: {
     position: "relative", // Required for absolute positioning of the shadow
@@ -66,15 +59,4 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent", // Make the header background transparent
     zIndex: 100, // Ensure the header stays above the shadow
   },
-  title: {
-    fontSize: 18,
-    fontWeight: "500",
-    color: "white",
-  },
-  extra: {
-    fontSize: 14,
-    color: "yellow",
-  },
 });
-
-export default CustomHeader;

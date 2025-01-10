@@ -245,8 +245,8 @@ const styles = StyleSheet.create({
     // flex: 1,
   },
   image: {
-    width: WINDOW_WIDTH-25,
-    height: WINDOW_WIDTH*1.2,
+    width: WINDOW_WIDTH - 25,
+    height: WINDOW_WIDTH * 1.2,
   },
   modalContainer: {
     marginTop: -60,

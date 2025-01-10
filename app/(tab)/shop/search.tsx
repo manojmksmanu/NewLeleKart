@@ -17,6 +17,7 @@ import {
 } from "react-native";
 import { fetchProducts } from "@/api/productApi";
 import ProductCard from "@/components/organisms/productCard";
+import ProductFilters from "@/components/templates/ProductFIlters";
 
 export default function SearchProduct() {
   const theme = useTheme();
@@ -28,7 +29,7 @@ export default function SearchProduct() {
     await setLoading(true);
     const data = await fetchProducts({ search: searchQuery });
     console.log("Search Query:", searchQuery);
-    await setSearchedProducts(data);
+    await setSearchedProducts(data.products);
     await setLoading(false);
   };
 
@@ -90,7 +91,15 @@ export default function SearchProduct() {
             <Feather name="search" size={24} color={theme.text} />
           </TouchableOpacity>
         </View>
-
+        {!loading && SearchProduct?.length === 0 && (
+          <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          >
+            <Text style={{ color: theme.text, fontSize: 18 }}>
+              Product Not found
+            </Text>
+          </View>
+        )}
         {loading && (
           <View
             style={[
@@ -137,15 +146,6 @@ export default function SearchProduct() {
             </View>
           </ScrollView>
         )}
-        {!loading && SearchProduct?.length === 0 && (
-          <View>
-            <Text
-              style={{ color: theme.text, fontSize: 18, textAlign: "center" }}
-            >
-              Product Not found
-            </Text>
-          </View>
-        )}
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 10,
     shadowColor: "#000", // Shadow color
-    shadowOffset: { width: 0, height: 0.5}, // Shadow offset
+    shadowOffset: { width: 0, height: 0.5 }, // Shadow offset
     shadowOpacity: 0.05, // Shadow opacity
     shadowRadius: 20, // Shadow blur radius
     elevation: 1, // Elevation for Android
@@ -191,5 +191,14 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "500",
     marginBottom: 10,
+  },
+  filtersContainer: {
+    flex: 1, // Allow filters to grow
+  },
+  filters: {
+    backgroundColor: "#f5f5f5", // Custom background color
+  },
+  filtersContent: {
+    padding: 8, // Custom padding
   },
 });

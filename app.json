@@ -16,7 +16,10 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.manojku.LeleKart"
+      "package": "com.manojku.LeleKart",
+      "compileSdkVersion": 35, 
+      "targetSdkVersion": 35, 
+      "minSdkVersion": 24
     },
     "web": {
       "bundler": "metro",
@@ -32,6 +35,16 @@
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 35, 
+            "targetSdkVersion": 35, 
+            "minSdkVersion": 24
+          }
         }
       ]
     ],

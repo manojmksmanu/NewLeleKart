@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import TabsHeader from "@/components/molecules/TabsHeader";
 import CustomHeader from "@/components/molecules/CustomHeader";
+import { SafeAreaView } from "react-native-safe-area-context"; // Import SafeAreaView
 
 export default function ShopTab() {
   const router = useRouter();
@@ -31,28 +32,26 @@ export default function ShopTab() {
 
   if (storeLoading) {
     return (
-      <View style={{ backgroundColor: theme.background }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
         <SkeletonLoading />
         <SkeletonLoading />
         <SkeletonLoading />
         <SkeletonLoading />
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View
+    <SafeAreaView
       style={{
         flex: 1,
-        paddingBottom: 100,
         backgroundColor: theme.background,
-
-
       }}
     >
       <CustomHeader title="All Categories" />
       <ScrollView
-        style={[styles.container, { backgroundColor: theme.background,marginBottom:0 }]}
+        style={[styles.container, { backgroundColor: theme.background }]}
+        contentContainerStyle={{ paddingBottom: 10 }} // Add padding at the bottom
       >
         <View style={styles.categoriesContainer}>
           {categories && categories.length > 0 ? (
@@ -90,7 +89,7 @@ export default function ShopTab() {
           )}
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 

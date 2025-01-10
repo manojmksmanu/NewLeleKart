@@ -22,6 +22,7 @@ import CustomRenderHtml from "@/components/organisms/CustomRenderHtml"; // Impor
 import { useTheme } from "@/context/ThemeContext"; // Import the useTheme hook
 import ImageCarousel from "@/components/molecules/ImageCarouselProductDetails";
 import { useToast } from "@/context/ToastContainer";
+import { Ionicons } from "@expo/vector-icons";
 
 // Define types for the product and variations
 interface Attribute {
@@ -76,7 +77,7 @@ const ProductPage: React.FC = () => {
 
   // Fetch product and variations from the backend
   useEffect(() => {
-    setLoading(true)
+    setLoading(true);
     axios
       .get<{ product: Product; variations: Variation[] }>(
         `http://192.168.31.240:3000/products/${id}`
@@ -169,8 +170,8 @@ const ProductPage: React.FC = () => {
       addToCart(item); // Add the item to the cart
       showToast("Product Added to Bag, Check Your Bag", "success", 2000); // Show toast message
     }
-    if(isSelectedVariantInCart){
-      navigateToBag()
+    if (isSelectedVariantInCart) {
+      navigateToBag();
     }
   };
 
@@ -203,24 +204,46 @@ const ProductPage: React.FC = () => {
 
   // Get screen width using Dimensions API
   const { width } = Dimensions.get("window");
-console.log(loading,'loading')
+  console.log(loading, "loading");
   return (
     <SafeAreaView
       style={[
-        {flex:1},
+        { flex: 1 },
         { backgroundColor: theme.background },
         {
           paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
         },
       ]}
     >
+      <TouchableOpacity
+        onPress={() => router.back()}
+        style={{
+          backgroundColor: theme.primary,
+          width: 70,
+          height: 50,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          borderRadius: 30,
+          opacity: 0.9,
+          zIndex: 100,
+          position: "absolute",
+          left: 10,
+          top: 10,
+        }}
+      >
+        <Ionicons
+          name="arrow-back-sharp"
+          style={{ textAlign: "center" }}
+          size={30}
+          color={"white"}
+        />
+      </TouchableOpacity>
+
       <ScrollView
         contentContainerStyle={[
           styles.container,
           { backgroundColor: theme.background },
-          {
-            paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-          },
         ]}
       >
         {/* Product Images */}

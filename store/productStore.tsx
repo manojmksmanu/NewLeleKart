@@ -13,7 +13,7 @@ interface Product {
   name: string;
   price: string;
   category: string;
-  images:string;
+  images: string;
 }
 
 interface StoreState {
@@ -53,7 +53,7 @@ const useProductStore = create<StoreState>((set) => ({
       const response = await api.get("/categories", {
         params: queryParams,
       });
-      set({ categories: response.data, storeLoading: false });
+      set({ categories: response.data.data, storeLoading: false });
     } catch (error: any) {
       console.error("Failed to fetch categories:", error.message);
       set({ storeLoading: false });
@@ -62,10 +62,11 @@ const useProductStore = create<StoreState>((set) => ({
 
   // Fetch Products
   fetchProducts: async (queryParams = {}) => {
+    console.log(queryParams);
     set({ storeLoading: true });
     try {
       const response = await api.get("/products", { params: queryParams });
-      set({ productsByCategory: response.data, storeLoading: false });
+      set({ productsByCategory: response.data.products, storeLoading: false });
     } catch (error) {
       console.error("Failed to fetch products:", error);
       set({ storeLoading: false });
