@@ -1,5 +1,4 @@
-// CartViewPage.tsx
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -10,36 +9,47 @@ import {
   Platform,
   StatusBar,
   Dimensions,
-  
+  ActivityIndicator,
 } from "react-native";
-// Get screen width
-
 import { useCartStore } from "@/store/cartStore";
 import { Headline, Headline3, Subheads } from "@/components/atoms/Text";
 import { useTheme } from "@/context/ThemeContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { ButtonOutlinBig, ButtonPrimaryBig } from "@/components/atoms/Button";
+import { ButtonPrimaryBig } from "@/components/atoms/Button";
 import { useRouter } from "expo-router";
+import { useAuthStore } from "@/store/authStore";
+import { useToast } from "@/context/ToastContainer";
 
 const CartViewPage = () => {
-  const { cart, updateQuantity, removeFromCart, getSubtotal, getTotalItems } =
-    useCartStore();
-    const { width,height } = Dimensions.get("window"); 
+  const {
+    cart,
+    updateQuantity,
+    removeFromCart,
+    getSubtotal,
+    getTotalItems,
+    // loading,
+  } = useCartStore();
+  const { width, height } = Dimensions.get("window");
+  const [loading,setLoading]=useState(false)
   const theme = useTheme();
   const router = useRouter();
+  const {token}=useAuthStore()
+  const {showToast} = useToast()
+console.log(loading)
+  const navigateToCategory = (id: any) => {
+    router.push(`/shop/productDetails?id=${id}`);
+  };
+
   const handleUpdateQuantity = (
     product_id: number,
     variation_id: number | undefined,
     quantity: number
   ) => {
     if (quantity < 1) {
-      removeFromCart(product_id, variation_id);
+      removeFromCart(product_id, token, showToast);
     } else {
-      updateQuantity(product_id, variation_id, quantity);
+      updateQuantity(product_id,quantity, token, showToast);
     }
-  };
-const navigateToCategory = (id: any) => {
-    router.push(`/shop/productDetails?id=${id}`);
   };
 
   return (
@@ -55,11 +65,27 @@ const navigateToCategory = (id: any) => {
       <View style={{ paddingLeft: 20, paddingVertical: 20 }}>
         <Headline text="My Bag" />
       </View>
-      {cart.length === 0 ? (
-        <View style={{display:'flex',justifyContent:'center',alignItems:'center',flex:1}}>
-          <Image style={{width:200,height:200}} source={require("../../assets/images/online-shopping.png")}/>
+
+      {/* Show loader if cart is loading */}
+      {loading ? (
+        <View style={styles.loaderContainer}>
+          <ActivityIndicator size="large" color={theme.primary} />
+        </View>
+      ) : cart.length === 0 ? (
+        <View
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            flex: 1,
+          }}
+        >
+          <Image
+            style={{ width: 200, height: 200 }}
+            source={require("../../assets/images/online-shopping.png")}
+          />
           <Text style={styles.emptyCartText}>Your cart is empty.</Text>
-          </View>
+        </View>
       ) : (
         <>
           <FlatList
@@ -69,7 +95,7 @@ const navigateToCategory = (id: any) => {
             }
             renderItem={({ item }) => (
               <TouchableOpacity
-              onPress={()=>{navigateToCategory(item.product_id)}}
+                onPress={() => navigateToCategory(item.product_id)}
                 style={[
                   styles.cartItem,
                   { backgroundColor: theme.secondaryBackground },
@@ -81,9 +107,14 @@ const navigateToCategory = (id: any) => {
                   style={styles.productImage}
                   resizeMode="cover"
                 />
-                <View style={styles?.itemDetails}>
-                  {/* Product Name */}
+
+                {/* Product Details */}
+                <View style={styles.itemDetails}>
                   <Subheads text={item?.name} />
+                  <Subheads
+                    text={`₹${(item?.price * item?.quantity).toFixed(2)}`}
+                  />
+
                   {/* Variant Attributes */}
                   <View
                     style={{
@@ -93,37 +124,15 @@ const navigateToCategory = (id: any) => {
                     }}
                   >
                     {(item.attributes || []).map((attr, index) => (
-                      <Text
-                        key={index}
-                        style={{
-                          alignSelf: "flex-start",
-                          marginTop: 4,
-                          marginRight: 10,
-                        }}
-                      >
-                        <Text
-                          style={{
-                            color: theme.primary,
-                            opacity: 0.6,
-                            fontSize: 12,
-                            fontWeight: 700,
-                          }}
-                        >
-                          {attr.name} :
-                        </Text>
-                        <Text
-                          style={{
-                            color: theme.text,
-                            opacity: 0.9,
-                            fontSize: 12,
-                            fontWeight: 700,
-                          }}
-                        >
+                      <Text key={index} style={styles.attributeText}>
+                        <Text style={styles.attributeName}>{attr.name}: </Text>
+                        <Text style={styles.attributeOption}>
                           {attr.option}
                         </Text>
                       </Text>
                     ))}
                   </View>
+
                   {/* Quantity Controls */}
                   <View style={styles.quantityContainer}>
                     <TouchableOpacity
@@ -148,7 +157,7 @@ const navigateToCategory = (id: any) => {
                       </Text>
                     </TouchableOpacity>
                     <Text style={[styles.quantity, { color: theme.text }]}>
-                      {item?.quantity}
+                      {item.quantity}
                     </Text>
                     <TouchableOpacity
                       onPress={() =>
@@ -171,6 +180,7 @@ const navigateToCategory = (id: any) => {
                         +
                       </Text>
                     </TouchableOpacity>
+
                     {/* Remove Button */}
                     <TouchableOpacity
                       style={{ marginLeft: 10 }}
@@ -189,38 +199,19 @@ const navigateToCategory = (id: any) => {
               </TouchableOpacity>
             )}
           />
+
+          {/* Subtotal and Checkout Section */}
           <View
-            style={{
-              backgroundColor: theme.secondaryBackground,
-              borderTopRightRadius: 30,
-              borderTopLeftRadius: 30,
-              padding: 16, // Add padding for better spacing
-              // Shadow for iOS
-              shadowColor: theme.text, // Shadow color
-              shadowOffset: { width: 0, height: -10 }, // Top shadow (negative height)
-              shadowOpacity: 0.8, // Shadow opacity
-              shadowRadius: 4, // Shadow blur radius
-              // Shadow for Android
-              elevation: 10, // Elevation for Android shadow
-              display:'flex',
-              alignItems:'center',
-              gap:10
-            }}
+            style={[
+              styles.checkoutSection,
+              { backgroundColor: theme.secondaryBackground },
+            ]}
           >
-            <View
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                flexWrap: "wrap", // Allow wrapping on small screens
-                alignItems: "center",
-                justifyContent: "center", // Center content horizontally
-                gap: 20, // Add gap between items
-              }}
-            >
+            <View style={styles.subtotalContainer}>
               <Text style={{ color: theme.text, textAlign: "center" }}>
                 <Headline3 text="SubTotal: " />
                 <Text style={{ fontSize: 16, color: theme.text }}>
-                  ₹ {getSubtotal().toFixed(2)}
+                  ₹{getSubtotal().toFixed(2)}
                 </Text>
               </Text>
               <Text style={{ color: theme.text, textAlign: "center" }}>
@@ -230,7 +221,9 @@ const navigateToCategory = (id: any) => {
                 </Text>
               </Text>
             </View>
-            <ButtonPrimaryBig text="Check Out"/>
+
+            {/* Checkout Button */}
+            <ButtonPrimaryBig text="Check Out" />
           </View>
         </>
       )}
@@ -240,15 +233,13 @@ const navigateToCategory = (id: any) => {
 
 const styles = StyleSheet.create({
   container: {
-    // padding: 16,
     flex: 1,
     backgroundColor: "#fff",
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-    color: "#333",
+  loaderContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   emptyCartText: {
     fontSize: 16,
@@ -260,14 +251,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 10,
-    // padding: 10,
-    backgroundColor: "#f9f9f9",
     borderRadius: 8,
     marginHorizontal: 10,
+    padding: 10,
   },
   productImage: {
     width: "40%",
-    height: "100%",
+    height: 120,
     borderRadius: 8,
     marginRight: 10,
   },
@@ -275,15 +265,20 @@ const styles = StyleSheet.create({
     flex: 1,
     marginVertical: 10,
   },
-  itemName: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 5,
-  },
   attributeText: {
-    fontSize: 14,
-    color: "#666",
-    marginBottom: 5,
+    alignSelf: "flex-start",
+    marginTop: 4,
+    marginRight: 10,
+  },
+  attributeName: {
+    color: "#888",
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  attributeOption: {
+    color: "#333",
+    fontSize: 12,
+    fontWeight: "700",
   },
   quantityContainer: {
     flexDirection: "row",
@@ -299,21 +294,26 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginHorizontal: 10,
   },
-  removeButton: {
-    color: "red",
-    fontSize: 16,
-    marginTop: 10,
+  checkoutSection: {
+    borderTopRightRadius: 30,
+    borderTopLeftRadius: 30,
+    padding: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -10 },
+    shadowOpacity: 0.8,
+    shadowRadius: 4,
+    elevation: 10,
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
   },
-  subtotal: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginTop: 20,
-    textAlign: "right",
-  },
-  totalItems: {
-    fontSize: 16,
-    marginTop: 10,
-    textAlign: "right",
+  subtotalContainer: {
+    display: "flex",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 20,
   },
 });
 

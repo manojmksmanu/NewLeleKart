@@ -1,9 +1,8 @@
 import SkeletonLoading from "@/components/atoms/SkeletonLoading";
 import { useTheme } from "@/context/ThemeContext";
 import useProductStore from "@/store/categoryStore";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
-import { Category } from "@/types";
 import {
   View,
   Text,
@@ -12,19 +11,53 @@ import {
   ScrollView,
   StyleSheet,
 } from "react-native";
-import TabsHeader from "@/components/molecules/TabsHeader";
 import CustomHeader from "@/components/molecules/CustomHeader";
 import { SafeAreaView } from "react-native-safe-area-context"; // Import SafeAreaView
 import { CircularLoader } from "@/components/molecules/loaders/CircularLoadert";
+import useCategoryStore from "@/store/categoryStore";
+import { fetchCategories, fetchCategoryById } from "@/api/categoriesApi";
 
 export default function ShopTab() {
   const router = useRouter();
-  const { fetchCategories, categories, storeLoading } = useProductStore();
+  const {
+    categories,
+    selectedCategory,
+    storeLoading,
+    setCategories,
+    setSelectedCategory,
+    setStoreLoading,
+  } = useCategoryStore();
   const theme = useTheme();
+  const [page,setPage]=useState<any>(1)
+  // Fetch all categories
+  const loadCategories = async () => {
+    setStoreLoading(true);
+    try {
+      const data = await fetchCategories( );
+      setCategories(data);
+    } catch (error) {
+      console.error("Error loading categories:", error);
+    } finally {
+      setStoreLoading(false);
+    }
+  };
+  console.log(storeLoading, "storeloading");
+  // Fetch a category by ID
+  const loadCategoryById = async (id: number) => {
+    setStoreLoading(true);
+    try {
+      const data = await fetchCategoryById(id);
+      setSelectedCategory(data);
+    } catch (error) {
+      console.error("Error loading category:", error);
+    } finally {
+      setStoreLoading(false);
+    }
+  };
 
   useEffect(() => {
-    fetchCategories();
-  }, []);
+    loadCategories();
+  }, [page]);
 
   const navigateToCategory = (id: any) => {
     // Passing parameters via the URL
@@ -34,7 +67,7 @@ export default function ShopTab() {
   if (storeLoading) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
-        <CircularLoader/>
+        <CircularLoader />
       </SafeAreaView>
     );
   }

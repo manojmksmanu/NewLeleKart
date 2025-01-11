@@ -9,14 +9,15 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router";
-import useProductStore from "@/store/categoryStore";
+import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import ProductCard from "@/components/organisms/productCard";
 import { fetchProducts, getSubcategories } from "@/api/productApi";
 import { HeaderSkeleton } from "@/components/molecules/loaders/HeaderSkeleton";
 import { SubcategorySkeleton } from "@/components/molecules/loaders/SubcategorySkeleton";
 import { ProductSkeleton } from "@/components/molecules/loaders/ProductsSkeleton";
+import useCategoryStore from "@/store/categoryStore";
+import { fetchCategoryById } from "@/api/categoriesApi";
 
 export default function CategoryProduct() {
   const { id } = useLocalSearchParams(); // Access query params
@@ -27,23 +28,23 @@ export default function CategoryProduct() {
   );
   const [loading, setLoading] = useState<boolean>(false);
   const [products, setProducts] = useState<any[]>([]); // Initialize as an empty array
-  const {
-    fetchCategoryById,
-    selectedCategory,
-    storeLoading,
-    setSelectedCategory,
-  } = useProductStore();
+  const { selectedCategory, storeLoading, setSelectedCategory } =
+    useCategoryStore();
   // Fetch subcategories
   const fetchSubcategories = async () => {
     const response = await getSubcategories(id);
     setSubCategories(response);
   };
-
+console.log(selectedCategory,'selected category')
+  useEffect(() => {
+    console.log(loading, " loading", storeLoading);
+  }, [loading, storeLoading]);
   // Fetch products based on the selected category or subcategory
   const fetchProductsByCategory = async (categoryId: string | null) => {
     setLoading(true);
     try {
       const data = await fetchProducts({ category: categoryId || id });
+      console.log(data, "producdslkflksdfklhsdkjfhik");
       setProducts(data.products || []); // Ensure products is always an array
     } catch (error) {
       console.error("Failed to fetch products:", error);
@@ -54,16 +55,17 @@ export default function CategoryProduct() {
   };
 
   useEffect(() => {
-    // Reset selectedSubCategory to null when the main category ID changes
-    setSelectedSubCategory(null);
-    setSelectedCategory(null); // Reset selectedCategory in the store
-    fetchProductsByCategory(null); // Fetch products for the main category
-    fetchCategoryById(id); // Fetch category details
-    fetchSubcategories(); // Fetch subcategories
-  }, [id]); // Dependency on `id` ensures this runs when the category changes
+    fetchCategoryById(id);
+  }, [id]);
 
   useEffect(() => {
-    // Fetch products when the selected subcategory changes
+    setSelectedSubCategory(null);
+    setSelectedCategory(null);
+    fetchProductsByCategory(null);
+    fetchSubcategories();
+  }, [id]);
+
+  useEffect(() => {
     fetchProductsByCategory(selectedSubCategory);
   }, [selectedSubCategory]);
 

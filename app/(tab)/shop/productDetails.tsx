@@ -20,7 +20,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { CircularLoader } from "@/components/molecules/loaders/CircularLoadert";
 import { tokens } from "react-native-paper/lib/typescript/styles/themes/v3/tokens";
 import { useAuthStore } from "@/store/authStore";
-
+import { baseURL } from "@/utils/config";
 // Define types for the product and variations
 interface Attribute {
   id: number;
@@ -70,23 +70,24 @@ const ProductPage: React.FC = () => {
   const { token } = useAuthStore();
   // Use the theme
   const theme = useTheme();
-
+  console.log(cartLoading, loading);
   // Fetch product and variations from the backend
   useEffect(() => {
     setLoading(true);
     axios
-      .get<{ product: Product; variations: Variation[] }>(
-        `http://192.168.31.240:3000/products/${id}`
+      .get(
+        `${baseURL}/products/${id}`
       )
       .then((response) => {
         const { product, variations } = response.data;
+        console.log(product, "prdocuts,variations");
         setProduct(product);
         setVariations(variations);
 
         if (variations.length > 0) {
           const preSelectedVariant = variations[0];
           const initialAttributes: { [key: string]: string } = {};
-          preSelectedVariant.attributes.forEach((attr) => {
+          preSelectedVariant.attributes.forEach((attr:any) => {
             initialAttributes[attr.name] = attr.option;
           });
           setSelectedAttributes(initialAttributes);
@@ -98,7 +99,7 @@ const ProductPage: React.FC = () => {
         console.error("Error fetching product:", error);
         setLoading(false);
       });
-  }, [id]);
+  }, [ ]);
 
   // Handle attribute selection
   const handleAttributeChange = (attributeName: string, option: string) => {
@@ -153,7 +154,7 @@ const ProductPage: React.FC = () => {
   // Handle Add to Cart
   const handleAddToCart = async () => {
     if (!product) return;
-    // console.log(product)
+
     const item = {
       product_id: product.id,
       quantity: quantity,
@@ -166,11 +167,14 @@ const ProductPage: React.FC = () => {
     };
 
     // Check if the item is already in the cart
-    const isSelectedVariantInCart = isInCart(item.item_key);
+    const isSelectedVariantInCart = isInCart(
+      selectedVariantId
+        ? `variant_${selectedVariantId}`
+        : `product_${product?.id}`
+    );
 
     if (!isSelectedVariantInCart) {
-      console.log("hithis");
-      await addToCart(item,token,showToast); // Add the item to the cart
+      await addToCart(item, token, showToast); // Add the item to the cart
       showToast("Product Added to Bag, Check Your Bag", "success", 2000); // Show success toast
     } else {
       navigateToBag(); // Navigate to the bag if the item is already in the cart

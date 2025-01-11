@@ -80,38 +80,42 @@ export const useCartStore = create<CartState>()(
 
           console.log("Local cart updated");
 
-          // Prepare the payload in the required format
-          const payload = [
-            {
-              product_id: String(item.product_id), // Ensure product_id is a string
-              quantity: String(item.quantity), // Ensure quantity is a string
-            },
-          ];
-
-          // Log the API request details
-          console.log(
-            "Sending request to:",
-            `${baseURL}/customers/cart/add-item`
-          );
-          console.log("Request payload:", payload);
-          console.log("Request headers:", {
-            Authorization: `Bearer ${token}`,
-          });
-
-          // Sync with server
-          const response = await axios.post(
-            `${baseURL}/customers/cart/add-item`,
-            payload, // Send the array as the payload
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
+          // If token is available, sync with server
+          if (token) {
+            // Prepare the payload in the required format
+            const payload = [
+              {
+                product_id: String(item.product_id), // Ensure product_id is a string
+                quantity: String(item.quantity), // Ensure quantity is a string
               },
-            }
-          );
+            ];
 
-          console.log("API response:", response.data);
+            // Log the API request details
+            console.log(
+              "Sending request to:",
+              `${baseURL}/customers/cart/add-item`
+            );
+            console.log("Request payload:", payload);
+            console.log("Request headers:", {
+              Authorization: `Bearer ${token}`,
+            });
 
-          await syncCartWithServer(token, showToast); // Sync local cart with server after adding
+            // Sync with server
+            const response = await axios.post(
+              `${baseURL}/customers/cart/add-item`,
+              payload, // Send the array as the payload
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+
+            console.log("API response:", response.data);
+
+            await syncCartWithServer(token, showToast); // Sync local cart with server after adding
+          }
+
           showToast("Product added to cart!", "success", 2000); // Show success toast
         } catch (error: any) {
           console.error("Failed to add item to server cart:", error.message);
@@ -140,20 +144,23 @@ export const useCartStore = create<CartState>()(
             ),
           });
 
-          // Sync with server
-          await axios.post(
-            `${baseURL}/customers/cart/item/${item_key}`,
-            {
-              quantity: String(quantity),
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
+          // If token is available, sync with server
+          if (token) {
+            await axios.post(
+              `${baseURL}/customers/cart/item/${item_key}`,
+              {
+                quantity: String(quantity),
               },
-            }
-          );
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
 
-          await syncCartWithServer(token, showToast); // Sync local cart with server after updating
+            await syncCartWithServer(token, showToast); // Sync local cart with server after updating
+          }
+
           showToast("Quantity updated successfully!", "success", 2000); // Show success toast
         } catch (error) {
           console.error("Failed to update item in server cart:", error);
@@ -175,14 +182,17 @@ export const useCartStore = create<CartState>()(
             cart: cart.filter((item) => item.item_key !== item_key),
           });
 
-          // Sync with server
-          await axios.delete(`${baseURL}/customers/cart/item/${item_key}`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
+          // If token is available, sync with server
+          if (token) {
+            await axios.delete(`${baseURL}/customers/cart/item/${item_key}`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
 
-          await syncCartWithServer(token, showToast); // Sync local cart with server after removing
+            await syncCartWithServer(token, showToast); // Sync local cart with server after removing
+          }
+
           showToast("Product removed from cart!", "success", 2000); // Show success toast
         } catch (error) {
           console.error("Failed to remove item from server cart:", error);
@@ -200,12 +210,14 @@ export const useCartStore = create<CartState>()(
           // Clear local cart
           set({ cart: [] });
 
-          // Sync with server
-          await axios.delete(`${baseURL}/customers/cart`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
+          // If token is available, sync with server
+          if (token) {
+            await axios.delete(`${baseURL}/customers/cart`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
+          }
 
           showToast("Cart cleared successfully!", "success", 2000); // Show success toast
         } catch (error) {
@@ -239,6 +251,11 @@ export const useCartStore = create<CartState>()(
 
       // Sync local cart with server
       syncCartWithServer: async (token, showToast) => {
+        if (!token) {
+          console.log("No token available, skipping server sync.");
+          return { totalProducts: 0, totalPrice: 0 }; // Return default values if no token
+        }
+
         set({ loading: true }); // Start loading
 
         try {
